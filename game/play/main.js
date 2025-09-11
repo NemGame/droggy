@@ -43,5 +43,6 @@ function Update() {
 function ReloadCanvas() {
     c.width = c.offsetWidth * res;
     c.height = c.offsetHeight * res;
-    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.fillStyle = "#333";
+    ctx.fillRect(0, 0, c.width, c.height);
 }
