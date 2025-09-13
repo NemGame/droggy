@@ -1,9 +1,11 @@
 class Player {
-    constructor(pos=Vector.null, size=100) {
+    constructor(pos=Vector.null, size=100, imagepath) {
         this.pos = pos;
         this.size = size;
         this.color = "#fff";
         this.collider = new ColliderRect(this.pos, this.size, this.size);
+        this.imagepath = undefined;
+        this.imageData = new ImageDataW("imgs/" + imagepath + ".png", 0, 0, 16);
     }
     movenocare(x=0, y=0) {
         this.pos.move(x, y);
@@ -23,6 +25,7 @@ class Player {
     draw() {
         ctx.strokeStyle = this.color;
         ctx.rect(this.pos.x, this.pos.y, this.size, this.size);
+        this.imageData.drawAt(this.pos, ctx, this.size);
         ctx.stroke();
     }
 }

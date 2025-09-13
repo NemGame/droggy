@@ -2,27 +2,42 @@ document.addEventListener("DOMContentLoaded", LateLoad);
 
 const c = document.querySelector("canvas"), ctx = c.getContext("2d");
 
-let res = 1;
+let res = 1/4;
 
-const player = new Player();
+/**
+ * @example
+ * 0 - localhost
+ * 1 - namecheap
+ */
+const loadMode = 0;
+let imageNames = [];
+getImageNames();
 
-let speed = 10;
+const player = new Player(Vector.null, 16, "2");
+
+let speed = 2;
+let isRunning = false;
+let runningMult = 2;
 
 keys.bindkey("KeyW", () => {
-    player.move(0, -speed);
+    player.move(0, -speed * (isRunning ? runningMult : 1));
 }, "down");
 
 keys.bindkey("KeyS", () => {
-    player.move(0, speed);
+    player.move(0, speed * (isRunning ? runningMult : 1));
 }, "down");
 
 keys.bindkey("KeyA", () => {
-    player.move(-speed);
+    player.move(-speed * (isRunning ? runningMult : 1));
 }, "down");
 
 keys.bindkey("KeyD", () => {
-    player.move(speed);
+    player.move(speed * (isRunning ? runningMult : 1));
 }, "down");
+
+keys.bindkey("ShiftLeft", () => isRunning = true, "press");
+keys.bindkey("ShiftLeft", () => isRunning = false, "up");
+
 
 function LateLoad() {
 
@@ -38,6 +53,22 @@ function Update() {
 
 
     requestAnimationFrame(Update);
+}
+
+function getImageNames() {
+    fetch("imgs/").then(res => res.text()).then(x => {
+        let div = document.createElement("div");
+        div.innerHTML = x;
+        switch (loadMode) {
+            case 0:
+                imageNames = [...div.querySelectorAll("#files li:not(:first-child) a .name")].map(x => x.textContent);
+                break;
+            case 1:
+                console.error("fuck");
+                break;
+            default: return;
+        }
+    })
 }
 
 function ReloadCanvas() {
