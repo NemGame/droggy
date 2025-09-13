@@ -3,6 +3,22 @@ class Vector {
         this.x = x;
         this.y = y;
     }
+    /** A vector facing upwards */
+    static get up() {
+        return new Vector(0, -1);
+    }
+    /** A vector facing downwards */
+    static get down() {
+        return new Vector(0, 1);
+    }
+    /** A vector facing left */
+    static get left() {
+        return new Vector(-1, 0);
+    }
+    /** A vector facing right */
+    static get right() {
+        return new Vector(1, 0);
+    }
     /** 1 degree in radian */
     static get fok1rad() {
         return 0.017453292519943295;
@@ -32,20 +48,20 @@ class Vector {
         return Math.PI;
     }
     /** Devide by this to get the degrees in radians */
-    static get fokToRad() {
+    static get fokToRadDev() {
         return 57.29577951308232;  // 1 radian = 57.29577951308232 degrees (180 / PI)
     }
     /** Multiply by this to get the degrees in radians */
-    static get fokToRadMult() {
+    static get fokToRad() {
         return 0.017453292519943295;  // 1 degrees = 0.017453292519943295 radians (PI / 180)
     }
     /** Devide by this to get the radians in degrees */
-    static get radToFok() {
-        return Vector.fokToRadMult;
+    static get radToFokDev() {
+        return Vector.fokToRad;
     }
     /** Multiply by this to get the radians in degrees */
-    static get radToFokMult() {
-        return Vector.fokToRad;
+    static get radToFok() {
+        return Vector.fokToRadDev
     }
     /** Hosszúság */
     get length() {
@@ -66,7 +82,7 @@ class Vector {
     }
     /** Vektor -> Fok */
     get fok() {
-        return this.radian / Math.PI * 180;
+        return this.radian * Vector.radToFok;
     }
     /** Vektor relatívan lefelé */
     get down() {
@@ -94,8 +110,7 @@ class Vector {
     }
     /** Irány balra */
     get dleft() {
-        let fok = this.fok - 90;
-        return fok / 180 * Math.PI;
+        return (this.radian - Vector.fok90rad) * Vector.fokToRad;
     }
     /** new Vector(0, 0) */
     static get null() {
@@ -108,6 +123,19 @@ class Vector {
     /** Négyzet grid */
     static grid(n=0) {
         return Vector.as(n, n);
+    }
+    /** Returns the given degrees in radians 
+     * @param {number} [fok=0] degrees
+    */
+    static fokToRadian(fok=0) {
+        return fok * Vector.fokToRad;
+    }
+    /**
+     * Returns the given radians in degrees
+     * @param {Number} radian radians
+     */
+    static radianToFok(radian=0) {
+        return radian * Vector.radToFok;
     }
     /** Alias for parseJSON */
     static fromJSON(json="") { return Vector.parseJSON(json); }
