@@ -1,5 +1,5 @@
 class Player {
-    constructor(pos=Vector.null, size=100, imagepath="") {
+    constructor(pos=Vector.null, size=100, imagepath="", speed=10) {
         this.pos = pos;
         this.size = size;
         this.color = "#fff";
@@ -8,6 +8,8 @@ class Player {
         this.img = null;
         this.isImageLoaded = false;
         this.imageIsNull();
+        this.moveDirection = Vector.null;
+        this.speed = speed;
     }
     reloadImage() {
         this.isImageLoaded = false;
@@ -22,6 +24,11 @@ class Player {
     }
     movenocarev(v2=Vector.null) {
         this.pos.movev(v2);
+        return this;
+    }
+    automove() {
+        this.movev(this.moveDirection.normalized.scale(this.speed));
+        this.moveDirection = Vector.null;
         return this;
     }
     move(x=0, y=0) {

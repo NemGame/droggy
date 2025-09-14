@@ -1,3 +1,9 @@
+/** Version: 1.1
+ * 
+ * Created by NemGamingAkos
+ * 
+ * [ngakos.lol/libloader](https://www.ngakos.lol/libloader)
+ * */
 class Vector {
     constructor(x=0, y=0) {
         this.x = x;
@@ -181,11 +187,29 @@ class Vector {
         if (y) this.y = -this.y;
         return this;
     }
+    /** X érték megfordítása */
+    flipX() {
+        this.x = -this.x;
+        return this;
+    }
+    /** Y érték megfordítása */
+    flipY() {
+        this.y = -this.y;
+        return this;
+    }
+    /** Normalizálja a vektort, irány megmarad, hosszúság -> 1 */
+    normalize() {
+        return this.setv(this.normalized);
+    }
     /** Méretezés */
     scale(n=1) {
         this.x *= n;
         this.y *= n;
         return this;
+    }
+    /** Returns the vector as if it was scaled to `n` */
+    scaled(n=1) {
+        return this.self.scale(n);
     }
     /** Hasonlóság */
     similar(v2, threshold=0) {
@@ -200,7 +224,7 @@ class Vector {
     /** Irány, alapból radián */
     directionTo(v2=Vector.null, rad=true) {
         let val = Math.atan2(v2.y - this.y, v2.x - this.x)
-        return rad ? val : val / Math.PI * 180;
+        return rad ? val : val * Vector.radToFok;
     }
     /** Vektor irány - fok */
     directionToLeft(fok=0) {

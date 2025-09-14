@@ -15,36 +15,29 @@ let imagesLoaded = {};
 getImageNames().then(x => {
     console.log(x);
     x.forEach(name => {
-        let img = new Image();
-        img.src = "imgs/" + name;
-        console.log(img);
-        imagesLoaded[name] = null;
-        img.addEventListener("load", () => {
-            imagesLoaded[name] = img;
-        })
+        ReloadImage(name, false);
     });
 })
 
-const player = new Player(Vector.null, 16, "2");
+const player = new Player(Vector.null, 16, "2", 3);
 
-let speed = 2;
 let isRunning = false;
 let runningMult = 2;
 
 keys.bindkey("KeyW", () => {
-    player.move(0, -speed * (isRunning ? runningMult : 1));
+    player.moveDirection.y += -1;
 }, "down");
 
 keys.bindkey("KeyS", () => {
-    player.move(0, speed * (isRunning ? runningMult : 1));
+    player.moveDirection.y += 1;
 }, "down");
 
 keys.bindkey("KeyA", () => {
-    player.move(-speed * (isRunning ? runningMult : 1));
+    player.moveDirection.x += -1;
 }, "down");
 
 keys.bindkey("KeyD", () => {
-    player.move(speed * (isRunning ? runningMult : 1));
+    player.moveDirection.x += 1;
 }, "down");
 
 keys.bindkey("ShiftLeft", () => isRunning = true, "press");
@@ -59,6 +52,8 @@ function LateLoad() {
 function Update() {
     keys.update();
     ReloadCanvas();
+
+    player.automove();
 
     player.draw();
 
@@ -91,10 +86,12 @@ function ReloadCanvas() {
     ctx.fillRect(0, 0, c.width, c.height);
 }
 
-function ReloadImage(name="undefined.png") {
-    delete imagesLoaded[name];
+/** Completely reloads the image */
+function ReloadImage(name="undefined.png", deleteFromList=true, autocorrectName=true) {
+    if (deleteFromList) delete imagesLoaded[name];
+    if (autocorrectName && !(name.includes("."))) name += ".png";
     let reloadedImg = new Image();
-    reloadedImg.src = "imgs/" + name;
+    reloadedImg.src = "imgs/" + name + "?t=" + Date.now();
     reloadedImg.onload = () => {
         imagesLoaded[name] = reloadedImg;
         console.log("Image successfully reloaded: " + name);
