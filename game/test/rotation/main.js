@@ -9,6 +9,8 @@ let v1 = Vector.parseFok(0).scale(100);
 let v2 = Vector.parseFok(-45).scale(100);
 let v3 = v1.self;
 
+let imagesLoaded = {};
+
 function LateLoad() {
 
     Update();

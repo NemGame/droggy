@@ -1,11 +1,20 @@
 class Player {
-    constructor(pos=Vector.null, size=100, imagepath) {
+    constructor(pos=Vector.null, size=100, imagepath="") {
         this.pos = pos;
         this.size = size;
         this.color = "#fff";
         this.collider = new ColliderRect(this.pos, this.size, this.size);
-        this.imagepath = undefined;
-        this.imageData = new ImageDataW("imgs/" + imagepath + ".png", 0, 0, 16);
+        this.imagepath = imagepath + ".png";
+        this.img = null;
+        this.isImageLoaded = false;
+        this.imageIsNull();
+    }
+    reloadImage() {
+        this.isImageLoaded = false;
+        this.img = null;
+        ReloadImage(this.imagepath);
+        this.imageIsNull();
+        return this;
     }
     movenocare(x=0, y=0) {
         this.pos.move(x, y);
@@ -25,8 +34,20 @@ class Player {
     draw() {
         ctx.strokeStyle = this.color;
         ctx.rect(this.pos.x, this.pos.y, this.size, this.size);
-        this.imageData.drawAt(this.pos, ctx, this.size);
+        if (this.img != null) ctx.drawImage(this.img, this.pos.x, this.pos.y);
+        else if (this.img == null && this.isImageLoaded) this.imageIsNull();
         ctx.stroke();
+    }
+    imageIsNull() {
+        console.log("Trying to load image", this.imagepath);
+        if (this.imagepath in imagesLoaded) {
+            this.img = imagesLoaded[this.imagepath];
+            this.isImageLoaded = true;
+            console.log("loaded image", this.imagepath);
+            return true;
+        }
+        requestAnimationFrame(this.imageIsNull.bind(this));
+        return false;
     }
 }
 

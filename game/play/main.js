@@ -11,7 +11,19 @@ let res = 1/4;
  */
 const loadMode = 0;
 let imageNames = [];
-getImageNames();
+let imagesLoaded = {};
+getImageNames().then(x => {
+    console.log(x);
+    x.forEach(name => {
+        let img = new Image();
+        img.src = "imgs/" + name;
+        console.log(img);
+        imagesLoaded[name] = null;
+        img.addEventListener("load", () => {
+            imagesLoaded[name] = img;
+        })
+    });
+})
 
 const player = new Player(Vector.null, 16, "2");
 
@@ -56,7 +68,7 @@ function Update() {
 }
 
 function getImageNames() {
-    fetch("imgs/").then(res => res.text()).then(x => {
+    return fetch("imgs/").then(res => res.text()).then(x => {
         let div = document.createElement("div");
         div.innerHTML = x;
         switch (loadMode) {
@@ -68,6 +80,7 @@ function getImageNames() {
                 break;
             default: return;
         }
+        return imageNames;
     })
 }
 
@@ -76,4 +89,14 @@ function ReloadCanvas() {
     c.height = c.offsetHeight * res;
     ctx.fillStyle = "#333";
     ctx.fillRect(0, 0, c.width, c.height);
+}
+
+function ReloadImage(name="undefined.png") {
+    delete imagesLoaded[name];
+    let reloadedImg = new Image();
+    reloadedImg.src = "imgs/" + name;
+    reloadedImg.onload = () => {
+        imagesLoaded[name] = reloadedImg;
+        console.log("Image successfully reloaded: " + name);
+    }
 }

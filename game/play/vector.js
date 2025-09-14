@@ -1,7 +1,67 @@
 class Vector {
-    constructor(x, y) {
+    constructor(x=0, y=0) {
         this.x = x;
         this.y = y;
+    }
+    /** A vector facing upwards */
+    static get up() {
+        return new Vector(0, -1);
+    }
+    /** A vector facing downwards */
+    static get down() {
+        return new Vector(0, 1);
+    }
+    /** A vector facing left */
+    static get left() {
+        return new Vector(-1, 0);
+    }
+    /** A vector facing right */
+    static get right() {
+        return new Vector(1, 0);
+    }
+    /** 1 degree in radian */
+    static get fok1rad() {
+        return 0.017453292519943295;
+    }
+    /** 15 degrees in radian */
+    static get fok15rad() {
+        return 0.2617993877991494;
+    }
+    /** 30 degrees in radian */
+    static get fok30rad() {
+        return 0.5235987755982988;
+    }
+    /** 45 degrees in radian */
+    static get fok45rad() {
+        return 0.7853981633974483;
+    }
+    /** 90 degrees in radian */
+    static get fok90rad() {
+        return 1.5707963267948966;
+    }
+    /** 135 degrees in radian */
+    static get fok135rad() {
+        return 2.356194490192345;
+    }
+    /** 180 degrees in radian */
+    static get fok180rad() {
+        return Math.PI;
+    }
+    /** Devide by this to get the degrees in radians */
+    static get fokToRadDev() {
+        return 57.29577951308232;  // 1 radian = 57.29577951308232 degrees (180 / PI)
+    }
+    /** Multiply by this to get the degrees in radians */
+    static get fokToRad() {
+        return 0.017453292519943295;  // 1 degrees = 0.017453292519943295 radians (PI / 180)
+    }
+    /** Devide by this to get the radians in degrees */
+    static get radToFokDev() {
+        return Vector.fokToRad;
+    }
+    /** Multiply by this to get the radians in degrees */
+    static get radToFok() {
+        return Vector.fokToRadDev
     }
     /** Hosszúság */
     get length() {
@@ -22,7 +82,7 @@ class Vector {
     }
     /** Vektor -> Fok */
     get fok() {
-        return this.radian / Math.PI * 180;
+        return this.radian * Vector.radToFok;
     }
     /** Vektor relatívan lefelé */
     get down() {
@@ -50,8 +110,7 @@ class Vector {
     }
     /** Irány balra */
     get dleft() {
-        let fok = this.fok - 90;
-        return fok / 180 * Math.PI;
+        return (this.radian - Vector.fok90rad) * Vector.fokToRad;
     }
     /** new Vector(0, 0) */
     static get null() {
@@ -65,11 +124,28 @@ class Vector {
     static grid(n=0) {
         return Vector.as(n, n);
     }
+    /** Returns the given degrees in radians 
+     * @param {number} [fok=0] degrees
+    */
+    static fokToRadian(fok=0) {
+        return fok * Vector.fokToRad;
+    }
+    /**
+     * Returns the given radians in degrees
+     * @param {Number} radian radians
+     */
+    static radianToFok(radian=0) {
+        return radian * Vector.radToFok;
+    }
+    /** Alias for parseJSON */
+    static fromJSON(json="") { return Vector.parseJSON(json); }
     /** JSON -> Vektor */
     static parseJSON(json="") {
         if (typeof json == "string") json = JSON.parse(json);
         return Vector.as(json["x"], json["y"]);
     }
+    /** Alias for parseFok */
+    static fromFok(fok=0, ztz=false) { return Vector.parseFok(fok, ztz); }
     /** Fok -> Vektor 
      * @param {boolean} [ztz=false] fok == 0 => Vector.null
     */
@@ -78,6 +154,8 @@ class Vector {
         let rad = (fok % 360) * (Math.PI / 180);
         return new Vector(Math.cos(rad), Math.sin(rad))
     }
+    /** Alias for parseRad */
+    static fromRad(fok=0, ztz=false) { return Vector.parseRad(fok, ztz); }
     /** Radián -> Vektor 
      * @param {boolean} [ztz=false] rad == 0 => Vector.null
     */
