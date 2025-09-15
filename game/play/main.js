@@ -52,7 +52,7 @@ function LateLoad() {
 }
 
 function Update() {
-    texture.draw();
+    texture.drawAt(0, c.width / 2, c.height / 2);
     
     keys.update();
     ReloadCanvas();
