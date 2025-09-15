@@ -19,9 +19,10 @@ getImageNames().then(x => {
     });
 })
 
-const player = new Player(Vector.null, 16, "2", 3);
-
 let texture = new Texture("2.png");
+
+const player = new Player(Vector.null, 16, 3, texture);
+
 
 let isRunning = false;
 let runningMult = 2;
@@ -55,7 +56,7 @@ function Update() {
     ReloadCanvas();
     texture.drawAt(0, new Vector(c.width / 2, c.height / 2).rounded);
     texture.drawAt(1, new Vector(c.width / 2 - 17, c.height / 2).rounded);
-    
+
     player.automove();
 
     player.draw();

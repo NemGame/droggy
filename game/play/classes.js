@@ -1,21 +1,15 @@
 class Player {
-    constructor(pos=Vector.null, size=100, imagepath="", speed=10) {
+    constructor(pos=Vector.null, size=100, speed=10, texture=Texture.null) {
         this.pos = pos;
         this.size = size;
+        this.speed = speed;
+        this.texture = texture;
         this.color = "#fff";
         this.collider = new ColliderRect(this.pos, this.size, this.size);
-        this.imagepath = imagepath + ".png";
-        this.img = null;
-        this.isImageLoaded = false;
-        this.imageIsNull();
         this.moveDirection = Vector.null;
-        this.speed = speed;
     }
     reloadImage() {
-        this.isImageLoaded = false;
-        this.img = null;
-        ReloadImage(this.imagepath);
-        this.imageIsNull();
+        this.texture.reload();
         return this;
     }
     movenocare(x=0, y=0) {
@@ -42,8 +36,7 @@ class Player {
         ctx.strokeStyle = this.color;
         let p = this.pos.rounded;
         ctx.rect(p.x, p.y, this.size, this.size);
-        if (this.img != null) ctx.drawImage(this.img, p.x, p.y);
-        else if (this.img == null && this.isImageLoaded) this.imageIsNull();
+        this.texture.drawCurrentAt(p);
         ctx.stroke();
     }
     imageIsNull() {
@@ -90,12 +83,16 @@ class Texture {
         return new Texture();
     }
     get current() {
-        return this.correct().pics[this.state][this.id];
+        this.correct();
+        let s = this.pics[this.state];
+        if (!s) return;
+        return s[this.id];
     }
     reload() {
         
     }
     correct() {
+        if (this.pics.length == 0) return this;
         if (this.state < 0) this.state = 0;
         else if (this.state > this.pics.length - 1) this.state = this.pics.length - 1;
         if (this.id < 0) this.id = 0;
@@ -121,11 +118,7 @@ class Texture {
                     tileCanvas.width = size;
                     tileCanvas.height = size;
                     const ctx = tileCanvas.getContext("2d");
-
-                    console.log(x * size);
-                    console.log(y * size);
-
-                    ctx.fillRect(0, 0, size, size);
+                    
                     ctx.drawImage(
                         img,
                         x * size, y * size, size - x, size - y,
@@ -145,5 +138,13 @@ class Texture {
             pos.x, pos.y
         );
         ctx.stroke();
+    }
+    drawCurrentAt(pos=Vector.null) {
+        let c = this.current;
+        if (!c) return;
+        ctx.drawImage(
+            c,
+            pos.x, pos.y
+        );
     }
 }
