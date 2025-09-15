@@ -173,6 +173,7 @@ class Texture {
             x.forEach(y => {
                 document.body.appendChild(y);
             })
+            document.body.appendChild(document.createElement("br"));
         })
     }
 }

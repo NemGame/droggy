@@ -23,7 +23,8 @@ const textures = {
     "2.png": new Texture("2.png"),
     "fella_animation_test.png": new Texture("fella_animation_test.png", ["2.png"]),
     "test": new Texture("2state_3id_base.png"),
-    "ground": new Texture("og_padlo.png")
+    "ground": new Texture("og_padlo.png"),
+    "chest": new Texture("chest.png")
 };
 Object.values(textures).forEach(x => x.init());
 const player = new Player(Vector.null, 16, 1, textures["fella_animation_test.png"]);
