@@ -7,22 +7,26 @@ class Player {
         this.color = "#fff";
         this.collider = new ColliderRect(this.pos, this.size, this.size);
         this.moveDirection = Vector.null;
+        this.canWalkDiagonally = false;
+        this.lastDirPressed = Vector.null;
     }
     reloadImage() {
         this.texture.reload();
         return this;
     }
-    movenocare(x=0, y=0) {
-        this.pos.move(x, y);
-        return this;
-    }
-    movenocarev(v2=Vector.null) {
-        this.pos.movev(v2);
-        return this;
-    }
     automove() {
-        this.movev(this.moveDirection.normalized.scale(this.speed));
-        this.moveDirection = Vector.null;
+        if (this.moveDirection.isNull || this.lastDirPressed.isNull) {
+            this.texture.state = 0;
+            this.texture.id = 0;
+        } else {
+            if (this.canWalkDiagonally) this.movev(this.moveDirection.normalized.scale(this.speed));
+            else this.movev(this.lastDirPressed.normalized.scale(this.speed));
+            this.moveDirection = Vector.null;
+            this.lastDirPressed = Vector.null;
+            console.log(this.lastDirPressed)
+            this.texture.state = 1;
+            this.texture.nextFrame();
+        }
         return this;
     }
     move(x=0, y=0) {
@@ -35,20 +39,9 @@ class Player {
     draw() {
         ctx.strokeStyle = this.color;
         let p = this.pos.rounded;
-        ctx.rect(p.x, p.y, this.size, this.size);
+        // ctx.rect(p.x, p.y, this.size, this.size);
         this.texture.drawCurrentAt(p);
         ctx.stroke();
-    }
-    imageIsNull() {
-        console.log("Trying to load image", this.imagepath);
-        if (this.imagepath in imagesLoaded) {
-            this.img = imagesLoaded[this.imagepath];
-            this.isImageLoaded = true;
-            console.log("loaded image", this.imagepath);
-            return true;
-        }
-        requestAnimationFrame(this.imageIsNull.bind(this));
-        return false;
     }
 }
 
@@ -72,12 +65,21 @@ class ColliderRect {
 }
 
 class Texture {
-    constructor(source="undefined") {
+    constructor(source="undefined", overlayOnDraw = [], animationStates = []) {
         this.source = source;
+        this.overlayOnDraw = typeof overlayOnDraw == "object" ? overlayOnDraw : [overlayOnDraw];
+        this.overlayOnDrawTextures = [];
+        this.animationStates = animationStates;
         this.state = 0;
         this.id = 0;
         this.pics = [];
         this.slice();
+        if (0 in animationStates) this.animationPlayer();
+    }
+    static isCanvasEmpty(canvas) {
+        const ctx = canvas.getContext("2d");
+        const {width, height} = canvas;
+        return ctx.getImageData(0, 0, width, height).data.every(x => x === 0);
     }
     static get null() {
         return new Texture();
@@ -88,15 +90,27 @@ class Texture {
         if (!s) return;
         return s[this.id];
     }
+    animationPlayer() {
+
+        requestAnimationFrame(this.animationPlayer.bind(this));
+    }
+    init() {
+        this.loadOverlays();
+    }
+    /** You can set it */
+    onslicedone() {}
+    loadOverlays() {
+        this.overlayOnDrawTextures = this.overlayOnDraw.map(x => textures[x]);
+    }
     reload() {
         
     }
     correct() {
         if (this.pics.length == 0) return this;
-        if (this.state < 0) this.state = 0;
-        else if (this.state > this.pics.length - 1) this.state = this.pics.length - 1;
-        if (this.id < 0) this.id = 0;
-        else if (this.id > this.pics[this.state].length - 1) this.id = this.pics[this.state].length - 1;
+        if (this.state < 0) this.state = this.pics.length - 1;
+        else if (this.state > this.pics.length - 1) this.state = 0;
+        if (this.id < 0) this.id = this.pics[this.state].length - 1;
+        else if (this.id > this.pics[this.state].length - 1) this.id = 0;
         return this;
     }
     get(state=this.state, id=this.id) {
@@ -110,7 +124,7 @@ class Texture {
         img.addEventListener("load", () => {
             console.log("Image loaded for slicing: " + this.source);
             const cols = Math.floor(img.width / (size - 1));
-            this.pics = Array.from({ length: (cols - 1) }).fill().map(x => []);
+            this.pics = Array.from({ length: (cols) }).fill().map(x => []);
             const rows = Math.floor(img.height / (size - 1));
             for (let y = 0; y < rows; y++) {
                 for (let x = 0; x < cols; x++) {
@@ -118,33 +132,47 @@ class Texture {
                     tileCanvas.width = size;
                     tileCanvas.height = size;
                     const ctx = tileCanvas.getContext("2d");
-                    
+                    if (0) {
+                        ctx.fillStyle = "gray";
+                        ctx.fillRect(0, 0, size, size);
+                    }
+
                     ctx.drawImage(
                         img,
-                        x * size, y * size, size - x, size - y,
+                        x * size, y * size, size, size,
                         0, 0, size, size
                     );
+                    if (Texture.isCanvasEmpty(tileCanvas)) break;
                     this.pics[y].push(tileCanvas);
                 }
             }
-        })
+            this.pics = this.pics.filter(x => x.length > 0 && typeof x !== "undefined");
+            // this.onslicedone();
+        });
     }
-    drawAt(index=0, pos=Vector.null) {
+    drawAt(pos=Vector.null, state=0, id=0) {
         if (this.pics.length == 0) return;
-        let pic = this.pics[0][index];
-        if (!pic) return console.error("Pic not found");
+        let pic = this.pics[state][id];
+        if (!pic) return console.error(`Pic not found: ${this.source} - ${state}/${id}`);
         ctx.drawImage(
             pic,
             pos.x, pos.y
         );
         ctx.stroke();
+        this.overlayOnDrawTextures.forEach(texture => texture.drawCurrentAt(pos));
     }
     drawCurrentAt(pos=Vector.null) {
-        let c = this.current;
-        if (!c) return;
-        ctx.drawImage(
-            c,
-            pos.x, pos.y
-        );
+        this.drawAt(pos, this.state, this.id);
+    }
+    nextFrame() {
+        this.id += 1;
+        return this.correct();
+    }
+    addAllChildrenToBody() {
+        this.pics.forEach(x => {
+            x.forEach(y => {
+                document.body.appendChild(y);
+            })
+        })
     }
 }

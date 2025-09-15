@@ -19,33 +19,34 @@ getImageNames().then(x => {
     });
 })
 
-let texture = new Texture("2.png");
-
-const player = new Player(Vector.null, 16, 3, texture);
-
-
-let isRunning = false;
-let runningMult = 2;
+const textures = {
+    "2.png": new Texture("2.png"),
+    "fella_animation_test.png": new Texture("fella_animation_test.png", ["2.png"]),
+    "test": new Texture("2state_3id_base.png"),
+    "ground": new Texture("og_padlo.png")
+};
+Object.values(textures).forEach(x => x.init());
+const player = new Player(Vector.null, 16, 1, textures["fella_animation_test.png"]);
 
 keys.bindkey("KeyW", () => {
     player.moveDirection.y += -1;
+    player.lastDirPressed = Vector.up;
 }, "down");
 
 keys.bindkey("KeyS", () => {
     player.moveDirection.y += 1;
+    player.lastDirPressed = Vector.down;
 }, "down");
 
 keys.bindkey("KeyA", () => {
     player.moveDirection.x += -1;
+    player.lastDirPressed = Vector.left;
 }, "down");
 
 keys.bindkey("KeyD", () => {
     player.moveDirection.x += 1;
+    player.lastDirPressed = Vector.right;
 }, "down");
-
-keys.bindkey("ShiftLeft", () => isRunning = true, "press");
-keys.bindkey("ShiftLeft", () => isRunning = false, "up");
-
 
 function LateLoad() {
 
@@ -54,10 +55,10 @@ function LateLoad() {
 
 function Update() {
     ReloadCanvas();
-    texture.drawAt(0, new Vector(c.width / 2, c.height / 2).rounded);
-    texture.drawAt(1, new Vector(c.width / 2 - 17, c.height / 2).rounded);
 
     player.automove();
+
+    textures["ground"].drawAt(Vector.null);
 
     player.draw();
 
@@ -91,13 +92,14 @@ function ReloadCanvas() {
 }
 
 /** Completely reloads the image */
-function ReloadImage(name="undefined.png", deleteFromList=true, autocorrectName=true) {
-    if (deleteFromList) delete imagesLoaded[name];
-    if (autocorrectName && !(name.includes("."))) name += ".png";
-    let reloadedImg = new Image();
-    reloadedImg.src = "imgs/" + name + "?t=" + Date.now();
-    reloadedImg.onload = () => {
-        imagesLoaded[name] = reloadedImg;
-        console.log("Image successfully reloaded: " + name);
-    }
+function ReloadImage(name="undefined.png") {
+    let texture;
+    if (typeof name == "string") texture = GetTextureWithSourceImage(name);
+    else texture = new Texture(source);
+}
+
+function GetTextureWithSourceImage(source="") {
+    let values = Object.values(textures);
+    for (let x of values) if (x.source == source) return x;
+    return null;
 }
