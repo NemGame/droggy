@@ -9,6 +9,8 @@ class Player {
         this.moveDirection = Vector.null;
         this.canWalkDiagonally = false;
         this.lastDirPressed = Vector.null;
+        this.renderDistance = 3;
+        this.generationDistance = 3;
     }
     reloadImage() {
         this.texture.reload();
@@ -23,7 +25,6 @@ class Player {
             else this.movev(this.lastDirPressed.normalized.scale(this.speed));
             this.moveDirection = Vector.null;
             this.lastDirPressed = Vector.null;
-            console.log(this.lastDirPressed)
             this.texture.state = 1;
             this.texture.nextFrame();
         }
@@ -175,5 +176,18 @@ class Texture {
             })
             document.body.appendChild(document.createElement("br"));
         })
+    }
+}
+
+class Tile {
+    constructor(pos=Vector.null, texture=Texture.null) {
+        this.pos = pos;
+        this.texture = texture;
+    }
+    static get null() {
+        return new Tile();
+    }
+    draw() {
+        this.texture.drawAt(this.pos);
     }
 }

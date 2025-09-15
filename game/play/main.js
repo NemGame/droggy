@@ -27,7 +27,56 @@ const textures = {
     "chest": new Texture("chest.png")
 };
 Object.values(textures).forEach(x => x.init());
-const player = new Player(Vector.null, 16, 1, textures["fella_animation_test.png"]);
+const player = new Player(Vector.grid(100), 16, 1, textures["fella_animation_test.png"]);
+
+let tiles = {};
+GenerateTiles();
+
+function GenerateTiles() {
+    let groundTexture = textures["ground"];
+    for (let row = 0; row < player.generationDistance * 2 + 1; row++) {
+        for (let col = 0; col < player.generationDistance * 2 + 1; col++) {
+            if (row in tiles) {
+                if (!(col in tiles[row])) {
+                    tiles[row][col] = new Tile(Vector.as(row * 16, col * 16), groundTexture);
+                }
+            } else {
+                tiles[row] = { 0: new Tile(Vector.as(row * 16, 0), groundTexture) };
+            }
+        }
+    }
+}
+
+function DrawTiles() {
+    let neededRowIndexMin = player.pos.x - player.renderDistance;
+    let neededRowIndexMax = player.pos.x + player.renderDistance;
+    let neededRows = {};
+    for (let i = neededRowIndexMin; i <= neededRowIndexMax; i++) {
+        if (tiles[i] == undefined) {
+            GenerateTiles();
+        }
+        neededRows[i] = tiles[i];
+    }
+    let neededColsIndexMin = player.pos.y - player.renderDistance;
+    let neededColsIndexMax = player.pos.y + player.renderDistance;
+    let needed = [];
+    for (let i = 0; i < neededRows.length; i++) {
+        let row = neededRows[i];
+        for (let y = neededColsIndexMin; y <= neededColsIndexMax; y++) {
+            if (!(y in row)) GenerateTiles();
+            needed.push(row[y]);
+        }
+    }
+    needed.forEach(x => x.draw());
+}
+
+function DrawAllTiles() {
+    for (let i = 0; i < Object.values(tiles).length; i++) {
+        for (let y = 0; y < Object.values(tiles[i]).length; y++) {
+            tiles[i][y].draw();
+        }
+    }
+}
 
 keys.bindkey("KeyW", () => {
     player.moveDirection.y += -1;
@@ -59,7 +108,9 @@ function Update() {
 
     player.automove();
 
-    textures["ground"].drawAt(Vector.null);
+    // textures["ground"].drawAt(Vector.null);
+
+    DrawAllTiles();
 
     player.draw();
 
