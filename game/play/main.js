@@ -52,10 +52,11 @@ function LateLoad() {
 }
 
 function Update() {
-    texture.drawAt(0, c.width / 2, c.height / 2);
-    
-    keys.update();
     ReloadCanvas();
+    texture.drawAt(0, new Vector(c.width / 2, c.height / 2).rounded);
+    texture.drawAt(1, new Vector(c.width / 2 - 17, c.height / 2).rounded);
+
+    keys.update();
 
     player.automove();
 

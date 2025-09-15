@@ -127,5 +127,6 @@ class Texture {
             pic,
             pos.x, pos.y
         );
+        ctx.stroke();
     }
 }
