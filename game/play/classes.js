@@ -40,8 +40,9 @@ class Player {
     }
     draw() {
         ctx.strokeStyle = this.color;
-        ctx.rect(this.pos.x, this.pos.y, this.size, this.size);
-        if (this.img != null) ctx.drawImage(this.img, this.pos.x, this.pos.y);
+        let p = this.pos.rounded;
+        ctx.rect(p.x, p.y, this.size, this.size);
+        if (this.img != null) ctx.drawImage(this.img, p.x, p.y);
         else if (this.img == null && this.isImageLoaded) this.imageIsNull();
         ctx.stroke();
     }
