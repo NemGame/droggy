@@ -89,6 +89,22 @@ class Texture {
     static get null() {
         return new Texture();
     }
+    get current() {
+        return this.correct().pics[this.state][this.id];
+    }
+    reload() {
+        
+    }
+    correct() {
+        if (this.state < 0) this.state = 0;
+        else if (this.state > this.pics.length - 1) this.state = this.pics.length - 1;
+        if (this.id < 0) this.id = 0;
+        else if (this.id > this.pics[this.state].length - 1) this.id = this.pics[this.state].length - 1;
+        return this;
+    }
+    get(state=this.state, id=this.id) {
+        return this.pics[state][id];
+    }
     slice() {
         console.log("Slicing image: " + this.source);
         const size = 16;
@@ -96,8 +112,8 @@ class Texture {
         img.src = "imgs/" + this.source;
         img.addEventListener("load", () => {
             console.log("Image loaded for slicing: " + this.source);
-            this.pics = [];
             const cols = Math.floor(img.width / (size - 1));
+            this.pics = Array.from({ length: (cols - 1) }).fill().map(x => []);
             const rows = Math.floor(img.height / (size - 1));
             for (let y = 0; y < rows; y++) {
                 for (let x = 0; x < cols; x++) {
@@ -115,13 +131,14 @@ class Texture {
                         x * size, y * size, size - x, size - y,
                         0, 0, size, size
                     );
-                    this.pics.push(tileCanvas);
+                    this.pics[y].push(tileCanvas);
                 }
             }
         })
     }
     drawAt(index=0, pos=Vector.null) {
-        let pic = this.pics[index];
+        if (this.pics.length == 0) return;
+        let pic = this.pics[0][index];
         if (!pic) return console.error("Pic not found");
         ctx.drawImage(
             pic,

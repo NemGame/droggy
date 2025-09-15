@@ -17,6 +17,7 @@ class keysClass {
         this.cooldown = [];
         this.keysBound = {};
         this.logKeysDown = logKeysDown;
+        this.updateID = -69;  // Makes sure that only 1 update cycle is running
     }
     get anyKeyDown() {
         return this.keysDown.size > 0;
@@ -83,7 +84,7 @@ class keysClass {
                     boundKey.forEach(ak => {
                         if (!this.isOnCooldown(kname) && ["up", "keyup"].includes(ak.type.toLowerCase())) {
                             ak.func();
-                            if (ak.cooldown <= 1) {
+                            if (ak.cooldown > 1) {
                                 this.cooldown.push(new keysKeyCooldown(kname, ak.cooldown, ak.type));
                                 if (this.logKeysDown) console.log(`${kname} has been put on cooldown for ${ak.cooldown} frames`);
                             }
@@ -158,7 +159,8 @@ class keysClass {
             this.cooldown.splice(i, 1);
         });
     }
-    update() {
+    update(id=0) {
+        if (id != this.updateID) return;
         this.handleCooldowns();
         let keys = [...this.keysDown].map(x => { 
             let y = x.split("||"); 
@@ -173,7 +175,7 @@ class keysClass {
                     if (ak.type.toLowerCase().includes("up")) return;
                     if (!this.isOnCooldown(key) && this.isKeyActive(key, ak.type)) {
                         ak.func();
-                        if (ak.cooldown <= 1) {
+                        if (ak.cooldown > 1) {
                             this.cooldown.push(new keysKeyCooldown(key, ak.cooldown, ak.type));
                             if (this.logKeysDown) console.log(`${key} has been put on cooldown for ${ak.cooldown} frames`);
                         }
@@ -182,6 +184,7 @@ class keysClass {
             }
         })
         if (this.logKeysDown) console.log(keys);
+        requestAnimationFrame(() => { this.update(id); });
     }
 }
 class keysKeyBind {
@@ -214,5 +217,8 @@ class keysKeyCooldown {
  */
 const keys = new keysClass();
 
+keys.update(keys.updateID);  // Starts the update cycle
+
 document.addEventListener("keydown", function(k) { keys.add(new keysKey(k.code, 0)); })
 document.addEventListener("keyup", function(k) { keys.remove(new keysKey(k.code)); })
+
