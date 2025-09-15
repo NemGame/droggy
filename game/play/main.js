@@ -21,6 +21,8 @@ getImageNames().then(x => {
 
 const player = new Player(Vector.null, 16, "2", 3);
 
+let texture = new Texture("2.png");
+
 let isRunning = false;
 let runningMult = 2;
 
@@ -50,6 +52,8 @@ function LateLoad() {
 }
 
 function Update() {
+    texture.draw();
+    
     keys.update();
     ReloadCanvas();
 
