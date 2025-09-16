@@ -27,8 +27,8 @@ const textures = {
 Object.values(textures).forEach(x => x.init());
 const player = new Player(Vector.grid(100), 16, 1, textures["fella_animation_test.png"]);
 player.moveDirection = Vector.up;
-player.generationDistance = 100;
-player.renderDistance = 21;
+player.generationDistance = 3;
+player.renderDistance = 5;
 
 let tiles = {};
 player.generateTiles();
