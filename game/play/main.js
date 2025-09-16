@@ -8,6 +8,7 @@ let res = 1/4;
  * @example
  * 0 - localhost
  * 1 - namecheap
+ * 2 - file
  */
 const loadMode = 0;
 let imageNames = [];
@@ -28,23 +29,53 @@ const textures = {
 };
 Object.values(textures).forEach(x => x.init());
 const player = new Player(Vector.grid(100), 16, 1, textures["fella_animation_test.png"]);
+player.moveDirection = Vector.up;
+player.generationDistance = 7;
 
 let tiles = {};
-GenerateTiles();
 
 function GenerateTiles() {
     let groundTexture = textures["ground"];
-    for (let row = 0; row < player.generationDistance * 2 + 1; row++) {
-        for (let col = 0; col < player.generationDistance * 2 + 1; col++) {
-            if (row in tiles) {
-                if (!(col in tiles[row])) {
-                    tiles[row][col] = new Tile(Vector.as(row * 16, col * 16), groundTexture);
-                }
-            } else {
-                tiles[row] = { 0: new Tile(Vector.as(row * 16, 0), groundTexture) };
-            }
+    let dist = player.generationDistance;
+    let pos = player.pos;
+    let masterPos = pos.deved(16).floor.mult(16);
+    console.log(masterPos)
+    for (let row = -dist; row < dist; row++) {
+        for (let col = 0; col < dist * 2 + 1; col++) {
+            let tilePos = masterPos.added(Vector.as(row, col));
+            if (!tilePos.isDivisibleBy(16)) continue;
+            if (typeof tiles[tilePos.y] == "undefined") tiles[tilePos.y] = {};
+            if (typeof tiles[tilePos.y][tilePos.x] == "undefined") tiles[tilePos.y][tilePos.x] = new Tile(tilePos.added(Vector.as(row * 16, col * 16)).rounded, groundTexture);
         }
     }
+}
+
+function DoesTileExist(pos=Vector.null) {
+    if (typeof tiles[pos.y] == "undefined") return false;
+    if (typeof tiles[pos.y][pos.x] == "undefined") return false;
+    return true;
+}
+
+function TileAt(pos=Vector.null) {
+    if (typeof tiles[pos.y] == "undefined") return null;
+    if (typeof tiles[pos.y][pos.x] == "undefined") return null;
+    return tiles[pos.y][pos.x];
+}
+
+function GenerateNeighbourTiles(pos=Vector.null, size=16, texture=Texture.null, dist=1) {
+    let newTiles = [];
+    for (let i = -dist; i < dist + 1; i++) {
+        for (let y = -dist; y < dist + 1; y++) {
+            let rpos = Vector.as(i * size, y * size).added(pos);
+            let apos = pos.added(Vector.as(i * size, y * size)).rounded;
+            if (DoesTileExist(apos) || !apos.isDivisibleBy(size)) continue;
+            if (tiles[apos.y] == undefined) tiles[apos.y] = {};
+            tiles[apos.y][apos.x] = new Tile(apos, texture);
+            newTiles.push(rpos.self);
+        }
+    }
+    if (newTiles.length > 0) console.log("New tiles generated");
+    return newTiles;
 }
 
 function DrawTiles() {
@@ -71,11 +102,11 @@ function DrawTiles() {
 }
 
 function DrawAllTiles() {
-    for (let i = 0; i < Object.values(tiles).length; i++) {
-        for (let y = 0; y < Object.values(tiles[i]).length; y++) {
-            tiles[i][y].draw();
-        }
-    }
+    Object.keys(tiles).forEach(row => {
+        Object.keys(tiles[row]).forEach(tile => {
+            tiles[row][tile].draw()
+        })
+    });
 }
 
 keys.bindkey("KeyW", () => {
@@ -127,13 +158,12 @@ function getImageNames() {
             case 0:
                 imageNames = [...div.querySelectorAll("#files li:not(:first-child) a .name")].map(x => x.textContent);
                 break;
-            case 1:
-                console.error("fuck");
+            default:
+                console.error("Yeah, no.");
                 break;
-            default: return;
         }
         return imageNames;
-    })
+    }).catch(e => console.warn(e));
 }
 
 function ReloadCanvas() {

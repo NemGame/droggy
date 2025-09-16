@@ -27,6 +27,7 @@ class Player {
             this.lastDirPressed = Vector.null;
             this.texture.state = 1;
             this.texture.nextFrame();
+            GenerateNeighbourTiles(this.pos.deved(16).floor.multed(16), 16, textures["ground"], this.generationDistance);
         }
         return this;
     }
@@ -154,7 +155,7 @@ class Texture {
     drawAt(pos=Vector.null, state=0, id=0) {
         if (this.pics.length == 0) return;
         let pic = this.pics[state][id];
-        if (!pic) return console.error(`Pic not found: ${this.source} - ${state}/${id}`);
+        // if (!pic) return console.error(`Pic not found: ${this.source} - ${state}/${id}`);
         ctx.drawImage(
             pic,
             pos.x, pos.y
