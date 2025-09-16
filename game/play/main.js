@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", LateLoad);
 
 const c = document.querySelector("canvas"), ctx = c.getContext("2d");
 
+let canvasSize = Vector.as(21, 16);
+
 let res = 1/4;
 
 /**
@@ -13,12 +15,7 @@ let res = 1/4;
 const loadMode = 0;
 let imageNames = [];
 let imagesLoaded = {};
-getImageNames().then(x => {
-    console.log(x);
-    x.forEach(name => {
-        ReloadImage(name, false);
-    });
-})
+getImageNames();
 
 const textures = {
     "2.png": new Texture("2.png"),
@@ -30,8 +27,8 @@ const textures = {
 Object.values(textures).forEach(x => x.init());
 const player = new Player(Vector.grid(100), 16, 1, textures["fella_animation_test.png"]);
 player.moveDirection = Vector.up;
-player.generationDistance = 2;
-player.renderDistance = 5
+player.generationDistance = 100;
+player.renderDistance = 21;
 
 let tiles = {};
 player.generateTiles();
@@ -104,6 +101,7 @@ keys.bindkey("KeyD", () => {
 }, "down");
 
 function LateLoad() {
+    LoadCanvas();
 
     Update();
 }
@@ -140,18 +138,21 @@ function getImageNames() {
     }).catch(e => console.warn(e));
 }
 
-function ReloadCanvas() {
-    c.width = c.offsetWidth * res;
-    c.height = c.offsetHeight * res;
-    ctx.fillStyle = "#333";
-    ctx.fillRect(0, 0, c.width, c.height);
+function LoadCanvas() {
+    c.style.maxWidth = canvasSize.x * 16;
+    c.style.maxHeight = canvasSize.y * 16;
 }
 
-/** Completely reloads the image */
-function ReloadImage(name="undefined.png") {
-    let texture;
-    if (typeof name == "string") texture = GetTextureWithSourceImage(name);
-    else texture = new Texture(source);
+function ReloadCanvas() {
+    c.width = canvasSize.x * 16;
+    c.height = canvasSize.y * 16;
+    let x = document.documentElement.clientWidth / c.width, y = document.documentElement.clientHeight / c.height;
+    let z = Math.min(x, y);
+    let padding = 0.3;
+    c.style.width = c.width * (z - padding) + "px";
+    c.style.height = c.height * (z - padding) + "px";
+    ctx.fillStyle = "#333";
+    ctx.fillRect(0, 0, c.width, c.height);
 }
 
 function GetTextureWithSourceImage(source="") {
