@@ -27,7 +27,7 @@ class Player {
             this.lastDirPressed = Vector.null;
             this.texture.state = 1;
             this.texture.nextFrame();
-            GenerateNeighbourTiles(this.pos.deved(16).floor.multed(16), 16, textures["ground"], this.generationDistance);
+            player.generateTiles();
         }
         return this;
     }
@@ -36,6 +36,10 @@ class Player {
     }
     movev(v2=Vector.null) {
         this.pos.movev(v2);
+        return this;
+    }
+    generateTiles(n=this.generationDistance) {
+        GenerateNeighbourTiles(this.pos.placeInGrid(16).multed(16), 16, textures["ground"], n);
         return this;
     }
     draw() {

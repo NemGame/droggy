@@ -30,25 +30,11 @@ const textures = {
 Object.values(textures).forEach(x => x.init());
 const player = new Player(Vector.grid(100), 16, 1, textures["fella_animation_test.png"]);
 player.moveDirection = Vector.up;
-player.generationDistance = 7;
+player.generationDistance = 2;
+player.renderDistance = 5
 
 let tiles = {};
-
-function GenerateTiles() {
-    let groundTexture = textures["ground"];
-    let dist = player.generationDistance;
-    let pos = player.pos;
-    let masterPos = pos.deved(16).floor.mult(16);
-    console.log(masterPos)
-    for (let row = -dist; row < dist; row++) {
-        for (let col = 0; col < dist * 2 + 1; col++) {
-            let tilePos = masterPos.added(Vector.as(row, col));
-            if (!tilePos.isDivisibleBy(16)) continue;
-            if (typeof tiles[tilePos.y] == "undefined") tiles[tilePos.y] = {};
-            if (typeof tiles[tilePos.y][tilePos.x] == "undefined") tiles[tilePos.y][tilePos.x] = new Tile(tilePos.added(Vector.as(row * 16, col * 16)).rounded, groundTexture);
-        }
-    }
-}
+player.generateTiles();
 
 function DoesTileExist(pos=Vector.null) {
     if (typeof tiles[pos.y] == "undefined") return false;
@@ -78,27 +64,15 @@ function GenerateNeighbourTiles(pos=Vector.null, size=16, texture=Texture.null, 
     return newTiles;
 }
 
-function DrawTiles() {
-    let neededRowIndexMin = player.pos.x - player.renderDistance;
-    let neededRowIndexMax = player.pos.x + player.renderDistance;
-    let neededRows = {};
-    for (let i = neededRowIndexMin; i <= neededRowIndexMax; i++) {
-        if (tiles[i] == undefined) {
-            GenerateTiles();
-        }
-        neededRows[i] = tiles[i];
-    }
-    let neededColsIndexMin = player.pos.y - player.renderDistance;
-    let neededColsIndexMax = player.pos.y + player.renderDistance;
-    let needed = [];
-    for (let i = 0; i < neededRows.length; i++) {
-        let row = neededRows[i];
-        for (let y = neededColsIndexMin; y <= neededColsIndexMax; y++) {
-            if (!(y in row)) GenerateTiles();
-            needed.push(row[y]);
+function DrawShownTiles() {
+    let pos = player.pos.placeInGrid(16).mult(16);
+    ctx.rect(pos.x - player.renderDistance * 16, pos.y - player.renderDistance * 16, (player.renderDistance + 0.5) * 32, (player.renderDistance + 0.5) * 32);
+    for (let i = -player.renderDistance; i < player.renderDistance + 1; i++) {
+        for (let y = -player.renderDistance; y < player.renderDistance + 1; y++) {
+            if (tiles[pos.y + (i * 16)] === undefined || tiles[pos.y + (i * 16)][pos.x + (y * 16)] === undefined) continue;
+            tiles[pos.y + (i * 16)][pos.x + (y * 16)].draw();
         }
     }
-    needed.forEach(x => x.draw());
 }
 
 function DrawAllTiles() {
@@ -141,7 +115,7 @@ function Update() {
 
     // textures["ground"].drawAt(Vector.null);
 
-    DrawAllTiles();
+    DrawShownTiles();
 
     player.draw();
 

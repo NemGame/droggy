@@ -369,7 +369,7 @@ class Vector {
     }
     /** Returns how manyeth cell is this in */
     placeInGrid(n=16) {
-        return this.pos.deved(n).floor;
+        return this.deved(n).floor;
     }
     /** Vektor -> String */
     toString(split=";") {
