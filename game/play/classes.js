@@ -11,14 +11,18 @@ class Player {
         this.lastDirPressed = Vector.null;
         this.generationDistance = 3;
         this.renderDistance = 5;
+        this.isRunning = false;
+        this.runningMult = 1.7;
     }
     automove() {
         if (this.moveDirection.isNull || this.lastDirPressed.isNull) {
             this.texture.state = 0;
             this.texture.id = 0;
         } else {
-            if (this.canWalkDiagonally) this.movev(this.moveDirection.normalized.scale(this.speed));
-            else this.movev(this.lastDirPressed.normalized.scale(this.speed));
+            let stuff;
+            if (this.canWalkDiagonally) stuff = this.moveDirection.normalized.scale(this.speed);
+            else stuff = this.lastDirPressed.normalized.scale(this.speed);
+            this.movev(stuff.scale(this.isRunning ? this.runningMult : 1));
             this.moveDirection = Vector.null;
             this.lastDirPressed = Vector.null;
             this.texture.state = 1;

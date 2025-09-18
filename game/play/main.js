@@ -36,6 +36,7 @@ const player = new Player(canvasSize.deved(2).floor.mult(16), 16, 1, textures["f
 let tiles = {};
 player.autoGenerateTiles();
 
+//#region Tile logic
 function DoesTileExist(pos=Vector.null) {
     if (typeof tiles[pos.y] == "undefined") return false;
     if (typeof tiles[pos.y][pos.x] == "undefined") return false;
@@ -47,8 +48,6 @@ function TileAt(pos=Vector.null) {
     if (typeof tiles[pos.y][pos.x] == "undefined") return null;
     return tiles[pos.y][pos.x];
 }
-
-let generationPercent = 0, generationCount = 0;
 
 function GenerateNeighbourTiles(pos=Vector.null, size=16, texture=Texture.null, dist=1) {
     let newTiles = [];
@@ -84,13 +83,25 @@ function DrawAllTiles() {
         })
     });
 }
+//#endregion
 
+//#region Key mapping
 keys.bindkey("KeyW", () => {
     player.moveDirection.y += -1;
     player.lastDirPressed = Vector.up;
 }, "down");
 
+keys.bindkey("ArrowUp", () => {
+    player.moveDirection.y += -1;
+    player.lastDirPressed = Vector.up;
+}, "down")
+
 keys.bindkey("KeyS", () => {
+    player.moveDirection.y += 1;
+    player.lastDirPressed = Vector.down;
+}, "down");
+
+keys.bindkey("ArrowDown", () => {
     player.moveDirection.y += 1;
     player.lastDirPressed = Vector.down;
 }, "down");
@@ -100,10 +111,37 @@ keys.bindkey("KeyA", () => {
     player.lastDirPressed = Vector.left;
 }, "down");
 
+keys.bindkey("ArrowLeft", () => {
+    player.moveDirection.x += -1;
+    player.lastDirPressed = Vector.left;
+}, "down");
+
 keys.bindkey("KeyD", () => {
     player.moveDirection.x += 1;
     player.lastDirPressed = Vector.right;
 }, "down");
+
+keys.bindkey("ArrowRight", () => {
+    player.moveDirection.x += 1;
+    player.lastDirPressed = Vector.right;
+}, "down");
+
+keys.bindkey("ShiftLeft", () => {
+    player.isRunning = true;
+}, "down");
+
+keys.bindkey("ShiftLeft", () => {
+    player.isRunning = false;
+}, "up");
+
+keys.bindkey("ShiftRight", () => {
+    player.isRunning = true;
+}, "down");
+
+keys.bindkey("ShitRight", () => {
+    player.isRunning = false;
+}, "up");
+//#endregion
 
 function LateLoad() {
     LoadCanvas();
