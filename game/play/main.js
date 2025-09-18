@@ -139,10 +139,12 @@ keys.bindkey("ShiftRight", () => {
 keys.bindkey("ShitRight", () => {
     player.isRunning = false;
 }, "up");
+
+keys.bindkey("F11", ToggleFullscreen, "press");
 //#endregion
 
 function LateLoad() {
-    navigator.keyboard.lock(["Escape", "KeyW", "KeyR", "F4"])
+    keys.lockAllKeys();
     LoadCanvas();
 
     Update();
@@ -195,7 +197,6 @@ function GetTextureWithSourceImage(source="") {
 }
 
 function ToggleFullscreen(bool=69) {
-    console.log("fsc")
     if ((document.fullscreenElement && bool != true)) {
         if (document.exitFullscreen) document.exitFullscreen();
         else console.error("Failed exit fullscreen mode: document.exitFullscreen does not exist");
