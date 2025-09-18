@@ -9,12 +9,8 @@ class Player {
         this.moveDirection = Vector.null;
         this.canWalkDiagonally = false;
         this.lastDirPressed = Vector.null;
-        this.renderDistance = 3;
         this.generationDistance = 3;
-    }
-    reloadImage() {
-        this.texture.reload();
-        return this;
+        this.renderDistance = 5;
     }
     automove() {
         if (this.moveDirection.isNull || this.lastDirPressed.isNull) {
@@ -27,7 +23,7 @@ class Player {
             this.lastDirPressed = Vector.null;
             this.texture.state = 1;
             this.texture.nextFrame();
-            player.generateTiles();
+            player.autoGenerateTiles();
         }
         return this;
     }
@@ -38,9 +34,12 @@ class Player {
         this.pos.movev(v2);
         return this;
     }
-    generateTiles(n=this.generationDistance) {
+    generateTiles(n=this.renderDistance) {
         GenerateNeighbourTiles(this.pos.placeInGrid(16).multed(16), 16, textures["ground"], n);
         return this;
+    }
+    autoGenerateTiles() {
+        return this.generateTiles(this.generationDistance);
     }
     draw() {
         ctx.strokeStyle = this.color;
@@ -48,6 +47,9 @@ class Player {
         // ctx.rect(p.x, p.y, this.size, this.size);
         this.texture.drawCurrentAt(p);
         ctx.stroke();
+    }
+    jumpToTile(tile=Vector.null) {
+        this.pos.setv(tile.multed(16));
     }
 }
 
@@ -71,16 +73,15 @@ class ColliderRect {
 }
 
 class Texture {
-    constructor(source="undefined", overlayOnDraw = [], animationStates = []) {
+    constructor(source="undefined", overlayOnDraw = [], animations = []) {
         this.source = source;
         this.overlayOnDraw = typeof overlayOnDraw == "object" ? overlayOnDraw : [overlayOnDraw];
         this.overlayOnDrawTextures = [];
-        this.animationStates = animationStates;
+        this.animations = animations;
         this.state = 0;
         this.id = 0;
         this.pics = [];
         this.slice();
-        if (0 in animationStates) this.animationPlayer();
     }
     static isCanvasEmpty(canvas) {
         const ctx = canvas.getContext("2d");
@@ -96,10 +97,6 @@ class Texture {
         if (!s) return;
         return s[this.id];
     }
-    animationPlayer() {
-
-        requestAnimationFrame(this.animationPlayer.bind(this));
-    }
     init() {
         this.loadOverlays();
     }
@@ -107,9 +104,6 @@ class Texture {
     onslicedone() {}
     loadOverlays() {
         this.overlayOnDrawTextures = this.overlayOnDraw.map(x => textures[x]);
-    }
-    reload() {
-        
     }
     correct() {
         if (this.pics.length == 0) return this;
@@ -181,6 +175,31 @@ class Texture {
             })
             document.body.appendChild(document.createElement("br"));
         })
+    }
+}
+
+class TextureAnimation {
+    constructor(images=[], timesBefore=[], startIndex=0, autostart=false, runTimes=Infinity) {
+        this.images = images;
+        this.timesBefore = timesBefore;
+        this.currentFrame = 0;
+        this.animationCount = 0;
+        this.isPlaying = autostart;
+        this.runTimes = runTimes;
+        this.currentFrame = images.length > startIndex ? images[startIndex] : 
+                            (images.length > 0 ? images[0] : null);
+        if (autostart) this.playAnimation(runTimes);
+    }
+    static get null() {
+        return new TextureAnimation();
+    }
+    playAnimation(times=1) {
+        if (times < 1) return;
+        setTimeout(() => {
+            console.log("ye");
+        }, this.timesBefore[this.animationCount] || 0);
+        this.animationCount++;
+        requestAnimationFrame(() => { this.playAnimation(times - 1); });
     }
 }
 

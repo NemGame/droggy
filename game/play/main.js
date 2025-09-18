@@ -1,4 +1,9 @@
 document.addEventListener("DOMContentLoaded", LateLoad);
+document.addEventListener("mousemove", (event) => {
+    mpos = new Vector(event.clientX, event.clientY).dev(Vector.as(window.innerWidth / c.width, window.innerHeight / c.height));
+})
+
+let mpos = Vector.null;
 
 const c = document.querySelector("canvas"), ctx = c.getContext("2d");
 
@@ -25,13 +30,10 @@ const textures = {
     "chest": new Texture("chest.png")
 };
 Object.values(textures).forEach(x => x.init());
-const player = new Player(Vector.grid(100), 16, 1, textures["fella_animation_test.png"]);
-player.moveDirection = Vector.up;
-player.generationDistance = 3;
-player.renderDistance = 5;
+const player = new Player(canvasSize.deved(2).floor.mult(16), 16, 1, textures["fella_animation_test.png"]);
 
 let tiles = {};
-player.generateTiles();
+player.autoGenerateTiles();
 
 function DoesTileExist(pos=Vector.null) {
     if (typeof tiles[pos.y] == "undefined") return false;
@@ -115,6 +117,11 @@ function Update() {
 
     DrawShownTiles();
 
+    ctx.beginPath();
+    ctx.arc(mpos.x, mpos.y, 10, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.closePath();
+
     player.draw();
 
 
@@ -159,4 +166,14 @@ function GetTextureWithSourceImage(source="") {
     let values = Object.values(textures);
     for (let x of values) if (x.source == source) return x;
     return null;
+}
+
+function ToggleFullscreen() {
+    if (document.fullscreenElement) {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else console.error("Failed exit fullscreen mode: document.exitFullscreen does not exist");
+    } else {
+        if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+        else console.error("Failed to enter fullscreen mode: c.requestFullscreen does not exist");
+    }
 }
