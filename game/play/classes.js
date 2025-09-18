@@ -147,6 +147,7 @@ class Texture {
                 }
             }
             this.pics = this.pics.filter(x => x.length > 0 && typeof x !== "undefined");
+            console.log(`Image sliced into ${this.pics.length} part${this.pics.length > 1 ? "s" : ""}: ${this.source}`);
             // this.onslicedone();
         });
     }

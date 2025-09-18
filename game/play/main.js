@@ -173,6 +173,7 @@ function GetTextureWithSourceImage(source="") {
 }
 
 function ToggleFullscreen() {
+    console.log("fsc")
     if (document.fullscreenElement) {
         if (document.exitFullscreen) document.exitFullscreen();
         else console.error("Failed exit fullscreen mode: document.exitFullscreen does not exist");
