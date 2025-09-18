@@ -1,0 +1,68 @@
+TODO: NAMEGAME
+
+VideoGame, DrugAbbuse, Mental, nocap healthcare
+
+Not illegal ==> legal
+
+HP: 1 =>> 100
+Item respawn
+HP++ | egészségi cucc, pl. maszk, gyógyszer
+	- fruit, veggies | hp++ 1
+	- Cauliflower:
+		~ rare
+		~ hp++ 5
+	- Bandeg hp++ 3
+HP-- | szar cucc, burger
+	- fastfood:
+		~ hp--
+		~ cooldown: 10-20 mp cooldown
+		~ cooldown violation: penalty ++
+	- non-sus food (looks like food but it ain't):
+		~ brick:
+			- no solid food fo ya
+			- get slowed
+Special |
+	- drugs (the "bad" ones): 3m HP++ 7 => -10
+	- painkillers:
+		~ drugs negative effect--
+		~ cooldown/amount: x/y
+		~ cooldown violation: fuck you, hp-- 5
+	- 
+
+Catalogue:
+	- info about eaten shit
+
+U getting hit if you don't eat for a minute
+Goal:
+	- Survive as long as ya can
+
+Level up system
+
+Supported languages:
+	- HU
+	- EN
+
+Collectables:
+	- running shoes: ya can run
+	- backpack: unlocks inventory
+
+https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.cnet.com%2Fpictures%2F10-memorable-moments-from-pokemon-red-and-blue%2F&psig=AOvVaw3t9Injxo4yue8syPAgyrbq&ust=1757661708137000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCND3-ZyW0I8DFQAAAAAdAAAAABAV
+
+Fake scaling
+
+drawings:
+	charakter ✓
+	fruits/veggies ✓
+	items✓
+	debuff items (brick, brickbu not real)✓
+	background ✓
+	inventory ✓
+	hotbar ✓
+	shops(pokemon game revive thingy) ✓
+	coins ✓
+	walls? X
+	npc (woden board) ✓
+	text boksz X
+	chest, chest open anim. ✓
+	eating anim.? X
+	
