@@ -189,17 +189,30 @@ class TextureAnimation {
         this.currentFrame = images.length > startIndex ? images[startIndex] : 
                             (images.length > 0 ? images[0] : null);
         if (autostart) this.playAnimation(runTimes);
+        this.animationID = 0;
     }
     static get null() {
         return new TextureAnimation();
     }
-    playAnimation(times=1) {
-        if (times < 1) return;
+    playAnimation(times=1, animationID=this.animationID) {
+        if (times < 1 || animationID != this.animationID) return;
         setTimeout(() => {
-            console.log("ye");
-        }, this.timesBefore[this.animationCount] || 0);
-        this.animationCount++;
-        requestAnimationFrame(() => { this.playAnimation(times - 1); });
+            if (animationID != this.animationID) return;
+            console.log("ye - " + animationID);
+            this.nextFrame();
+        }, typeof this.timesBefore == "number" ? this.timesBefore : this.timesBefore[this.animationCount] || 0);
+        requestAnimationFrame(() => { this.playAnimation(times - 1, animationID); });
+    }
+    stopAnimation() {
+        this.animationID++;
+        this.animationCount = 0;
+        this.currentFrame = 0;
+        this.isPlaying = false;
+        return this;
+    }
+    nextFrame() {
+        let n = this.images.length;
+
     }
 }
 
