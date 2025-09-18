@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", LateLoad);
 document.addEventListener("mousemove", (event) => {
     const b = c.getBoundingClientRect();
-    mpos = Vector.as((event.clientX - b.left) * (c.width / b.width), (event.clientY - b.top) * (c.height / b.height));
+    mpos = Vector.as((event.clientX - b.left) * (c.width / b.width), (event.clientY - b.top) * (c.height / b.height)).rounded;
 })
 
 let mpos = Vector.null;
@@ -121,7 +121,7 @@ function Update() {
     DrawShownTiles();
 
     ctx.beginPath();
-    ctx.arc(mpos.x, mpos.y, 10, 0, Math.PI * 2);
+    ctx.arc(mpos.x, mpos.y, 1.6, 0, Math.PI * 2);
     ctx.stroke();
     ctx.closePath();
 
@@ -151,6 +151,7 @@ function getImageNames() {
 function LoadCanvas() {
     c.style.maxWidth = canvasSize.x * 16;
     c.style.maxHeight = canvasSize.y * 16;
+    c.style.cursor = "none";
 }
 
 function ReloadCanvas() {
