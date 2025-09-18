@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", LateLoad);
 document.addEventListener("mousemove", (event) => {
-    mpos = new Vector(event.clientX, event.clientY).dev(Vector.as(window.innerWidth / c.width, window.innerHeight / c.height));
+    const b = c.getBoundingClientRect();
+    mpos = Vector.as((event.clientX - b.left) * (c.width / b.width), (event.clientY - b.top) * (c.height / b.height));
 })
 
 let mpos = Vector.null;
@@ -46,6 +47,8 @@ function TileAt(pos=Vector.null) {
     if (typeof tiles[pos.y][pos.x] == "undefined") return null;
     return tiles[pos.y][pos.x];
 }
+
+let generationPercent = 0, generationCount = 0;
 
 function GenerateNeighbourTiles(pos=Vector.null, size=16, texture=Texture.null, dist=1) {
     let newTiles = [];
