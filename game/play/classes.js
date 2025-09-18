@@ -200,7 +200,7 @@ class TextureAnimation {
             if (animationID != this.animationID) return;
             console.log("ye - " + animationID);
             this.nextFrame();
-        }, typeof this.timesBefore == "number" ? this.timesBefore : this.timesBefore[this.animationCount] || 0);
+        }, typeof this.timesBefore == "number" ? this.timesBefore : (this.timesBefore[this.animationCount] || 0));
         requestAnimationFrame(() => { this.playAnimation(times - 1, animationID); });
     }
     stopAnimation() {
