@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", LateLoad);
 document.addEventListener("mousemove", (event) => {
     const b = c.getBoundingClientRect();
     mpos = Vector.as((event.clientX - b.left) * (c.width / b.width), (event.clientY - b.top) * (c.height / b.height)).rounded;
-})
+});
 
 let mpos = Vector.null;
 
@@ -19,9 +19,7 @@ let res = 1/4;
  * 2 - file
  */
 const loadMode = 0;
-let imageNames = [];
 let imagesLoaded = {};
-getImageNames();
 
 const textures = {
     "2.png": new Texture("2.png"),
@@ -144,12 +142,14 @@ keys.bindkey("ShitRight", () => {
 //#endregion
 
 function LateLoad() {
+    navigator.keyboard.lock(["Escape", "KeyW", "KeyR", "F4"])
     LoadCanvas();
 
     Update();
 }
 
 function Update() {
+    if (keys.isKeyDown("AltLeft") && keys.isKeyDown("F4")) ToggleFullscreen(false);
     ReloadCanvas();
 
     player.automove();
@@ -168,22 +168,6 @@ function Update() {
 
 
     requestAnimationFrame(Update);
-}
-
-function getImageNames() {
-    return fetch("imgs/").then(res => res.text()).then(x => {
-        let div = document.createElement("div");
-        div.innerHTML = x;
-        switch (loadMode) {
-            case 0:
-                imageNames = [...div.querySelectorAll("#files li:not(:first-child) a .name")].map(x => x.textContent);
-                break;
-            default:
-                console.error("Yeah, no.");
-                break;
-        }
-        return imageNames;
-    }).catch(e => console.warn(e));
 }
 
 function LoadCanvas() {
@@ -210,12 +194,12 @@ function GetTextureWithSourceImage(source="") {
     return null;
 }
 
-function ToggleFullscreen() {
+function ToggleFullscreen(bool=69) {
     console.log("fsc")
-    if (document.fullscreenElement) {
+    if ((document.fullscreenElement && bool != true)) {
         if (document.exitFullscreen) document.exitFullscreen();
         else console.error("Failed exit fullscreen mode: document.exitFullscreen does not exist");
-    } else {
+    } else if (bool != false){
         if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
         else console.error("Failed to enter fullscreen mode: c.requestFullscreen does not exist");
     }
