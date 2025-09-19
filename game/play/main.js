@@ -207,9 +207,13 @@ function ToggleFullscreen(bool=69) {
     }
 }
 
+function InitScreenshot() {
+    
+}
+
 function DownloadCanvasAsImage() {
     let link = document.createElement("a");
-    link.setAttribute("download", "screenstuff_" + Date.now() + ".png");
+    link.setAttribute("download", "screenshot_" + Date.now() + ".png");
     link.setAttribute("href", c.toDataURL("image/png").replace("image/png", "image/octet-stream"));
     link.click();
 }
