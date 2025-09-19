@@ -217,7 +217,10 @@ class TextureAnimation {
     }
     nextFrame() {
         let n = this.images.length;
-
+        this.currentFrame++;
+        if (this.currentFrame < 0) this.currentFrame = n - 1;
+        else if (this.currentFrame > n - 1) this.currentFrame = 0;
+        return this;
     }
 }
 

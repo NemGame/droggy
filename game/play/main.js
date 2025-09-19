@@ -141,6 +141,7 @@ keys.bindkey("ShitRight", () => {
 }, "up");
 
 keys.bindkey("F11", ToggleFullscreen, "press");
+keys.bindkey("F12", DownloadCanvasAsImage, "press");
 //#endregion
 
 function LateLoad() {
@@ -204,4 +205,11 @@ function ToggleFullscreen(bool=69) {
         if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
         else console.error("Failed to enter fullscreen mode: c.requestFullscreen does not exist");
     }
+}
+
+function DownloadCanvasAsImage() {
+    let link = document.createElement("a");
+    link.setAttribute("download", "screenstuff_" + Date.now() + ".png");
+    link.setAttribute("href", c.toDataURL("image/png").replace("image/png", "image/octet-stream"));
+    link.click();
 }
