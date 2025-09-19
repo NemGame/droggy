@@ -4,9 +4,9 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="styles.css">
-        <script src="managers.js"></script>
         <script src="keys.js"></script>
         <script src="vector.js"></script>
+        <script src="languageManager.js"></script>
         <script src="classes.js"></script>
         <script defer src="main.js"></script>
         <title>Droggy - Play</title>
@@ -16,9 +16,18 @@
         <canvas id="main"></canvas>
         <div class="screenshotholder">
             <div class="screenshot">
-                <img src="" alt="screenshot"><br>
-                <button>No</button>
-                <button>Ye</button>
+                <div id="btns">
+                    <button class="nope" text="nope" onclick="InitScreenshot()">No</button>
+                    <button class="ye" text="ye" onclick="DownloadCanvasAsImage()">Ye</button>
+                </div>
+                <div id="stop">
+                    <img src="imgs/2.png" alt="screenshot" id="screenshotImage">
+                </div>
+                <div class="title">
+                    <h2 text="download">
+                        download
+                    </h2>
+                </div>
             </div>
         </div>
     </body>

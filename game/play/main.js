@@ -7,6 +7,7 @@ document.addEventListener("mousemove", (event) => {
 let mpos = Vector.null;
 
 const c = document.querySelector("canvas"), ctx = c.getContext("2d");
+c.addEventListener("contextmenu", (e) => e.preventDefault());
 
 let canvasSize = Vector.as(21, 16);
 
@@ -141,10 +142,12 @@ keys.bindkey("ShitRight", () => {
 }, "up");
 
 keys.bindkey("F11", ToggleFullscreen, "press");
-keys.bindkey("F12", DownloadCanvasAsImage, "press");
+keys.bindkey("F12", InitScreenshot, "press");
 //#endregion
 
 function LateLoad() {
+    LanguageManager.setLang("hu");
+    InitScreenshot();
     keys.lockAllKeys();
     LoadCanvas();
 
@@ -208,12 +211,18 @@ function ToggleFullscreen(bool=69) {
 }
 
 function InitScreenshot() {
-    
+    const s = document.querySelector(".screenshotholder");
+    const img = document.getElementById("screenshotImage");
+    if (s.style.visibility == "hidden") {
+        img.src = c.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        s.style.visibility = "visible";
+    }
+    else s.style.visibility = "hidden";
 }
 
-function DownloadCanvasAsImage() {
+function DownloadCanvasAsImage(download=null) {
     let link = document.createElement("a");
     link.setAttribute("download", "screenshot_" + Date.now() + ".png");
-    link.setAttribute("href", c.toDataURL("image/png").replace("image/png", "image/octet-stream"));
+    link.setAttribute("href", download != null ? download : c.toDataURL("image/png").replace("image/png", "image/octet-stream"));
     link.click();
 }

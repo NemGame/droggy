@@ -42,14 +42,63 @@ canvas:not(#main) {
     width: 100%;
     height: 100%;
     align-content: center;
-    display: none;
+    visibility: hidden;
 }
 
 .screenshot {
-    background-color: red;
     margin: auto;
-    width: 70%;
+    width: 30%;
     height: 50%;
     border-radius: 15px;
     text-align: center;
+    display: flex;
+    flex-direction: column-reverse;
+    padding-bottom: 10px;
+    background-color: yellow;
+}
+
+.screenshot button {
+    margin: 5px 10px;
+    transition: background-color 0.0625s ease;
+}
+
+#stop {
+    background-color: red;
+    align-content: center;
+    height: 100%;
+}
+
+.nope {
+    border: #300 5px solid;
+    border-radius: 10px;
+    background-color: #6c0000;
+    padding: 7.5px 15px;
+    color: red;
+}
+.nope:hover { background-color: #800; }
+.nope:active { background-color: #500; }
+
+.ye {
+    border: #030 5px solid;
+    border-radius: 10px;
+    background-color: #006c00;
+    padding: 7.5px 15px;
+    color: lime;
+}
+.ye:hover { background-color: #080; }
+.ye:active { background-color: #050; }
+
+#btns {
+    display: flexbox;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#screenshotImage {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.title h2 {
+    margin: 0;
 }
