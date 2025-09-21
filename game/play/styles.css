@@ -24,7 +24,7 @@ canvas:not(#main) {
     position: relative;
 }
 
-#fullscreen {
+#fullscreen, #docs {
     position: fixed;
     right: 2.5px;
     top: 2.5px;
@@ -33,6 +33,11 @@ canvas:not(#main) {
     padding: 5px 10px;
     z-index: -2;
     cursor: pointer;
+}
+
+#docs {
+    left: 2.5px;
+    right: initial;
 }
 
 .screenshotholder {

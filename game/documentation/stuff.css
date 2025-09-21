@@ -1,0 +1,31 @@
+.stuffholder .title {
+    color: white;
+    font-size: 250%;
+    text-align: center;
+}
+
+.stuffholder p {
+    color: white;
+    font-size: 102.5%;
+}
+
+.stuffholder hr {
+    border: 1px solid white;
+    margin-bottom: 25px !important;
+}
+
+.stuffholder h2 {
+    color: white;
+    text-decoration: underline;
+}
+
+.stuffholder langs {
+    visibility: hidden;
+}
+
+.stuffholder ol {
+    color: white;
+    font-size: 120%;
+    margin-top: 10px;
+    margin-left: 20px;
+}
