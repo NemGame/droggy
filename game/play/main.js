@@ -85,6 +85,7 @@ function DrawAllTiles() {
 //#endregion
 
 //#region Key mapping
+//#region Movement
 keys.bindkey("KeyW", () => {
     player.moveDirection.y += -1;
     player.lastDirPressed = Vector.up;
@@ -141,13 +142,17 @@ keys.bindkey("ShitRight", () => {
     player.isRunning = false;
 }, "up");
 
+//#endregion
+//#region UI
 keys.bindkey("F11", ToggleFullscreen, "press");
-keys.bindkey("F12", InitScreenshot, "press");
+keys.bindkey("F12", ToggleScreenshot, "press");
+keys.bindkey("Escape", EscapeFunction, "press");
+//#endregion
 //#endregion
 
 function LateLoad() {
     LanguageManager.setLang("hu");
-    InitScreenshot();
+    ToggleScreenshot();
     keys.lockAllKeys();
     LoadCanvas();
 
@@ -210,7 +215,7 @@ function ToggleFullscreen(bool=69) {
     }
 }
 
-function InitScreenshot() {
+function ToggleScreenshot() {
     const s = document.querySelector(".screenshotholder");
     const img = document.getElementById("screenshotImage");
     if (s.style.visibility == "hidden") {
@@ -225,4 +230,9 @@ function DownloadCanvasAsImage(download=null) {
     link.setAttribute("download", "screenshot_" + Date.now() + ".png");
     link.setAttribute("href", download != null ? download : c.toDataURL("image/png").replace("image/png", "image/octet-stream"));
     link.click();
+}
+
+function EscapeFunction() {
+    const sholder = document.querySelector(".screenshotholder");
+    if (getComputedStyle(sholder).visibility == "visible") ToggleScreenshot();
 }

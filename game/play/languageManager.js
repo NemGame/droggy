@@ -14,7 +14,10 @@ class LanguageManager {
         document.querySelectorAll("[text]").forEach(x => {
             let y = x.getAttribute("text");
             if (y in lang) x.textContent = lang[y];
-            else console.error(`'${y}' not found in '${currentLanguage}'`);
+            else {
+                console.error(`'${y}' not found in '${currentLanguage}'`);
+                x.textContent = y;
+            }
         });
     }
 }
@@ -23,13 +26,13 @@ let currentLanguage = "hu";
 
 const langs = {
     "hu": {
-        "nope": "Nem",
-        "ye": "Aha",
-        "download": "Letöltöd?"
+        "close": "Bezárás",
+        "download": "Letöltés",
+        "screenshot": "Képernyőkép"
     },
     "en": {
-        "nope": "Nah",
-        "ye": "Yup",
-        "download": "Download?"
+        "close": "Close",
+        "download": "Download",
+        "screenshot": "Screenshot"
     }
 }

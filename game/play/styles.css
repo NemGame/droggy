@@ -53,8 +53,9 @@ canvas:not(#main) {
     text-align: center;
     display: flex;
     flex-direction: column-reverse;
-    padding-bottom: 10px;
-    background-color: yellow;
+    padding: 10px 0;
+    background-color: rgb(25, 25, 25);
+    color: white;
 }
 
 .screenshot button {
@@ -63,30 +64,30 @@ canvas:not(#main) {
 }
 
 #stop {
-    background-color: red;
+    background-color: rgb(70, 70, 70);
     align-content: center;
     height: 100%;
 }
 
-.nope {
+.scclose {
     border: #300 5px solid;
     border-radius: 10px;
     background-color: #6c0000;
     padding: 7.5px 15px;
     color: red;
 }
-.nope:hover { background-color: #800; }
-.nope:active { background-color: #500; }
+.scclose:hover { background-color: #800; }
+.scclose:active { background-color: #500; }
 
-.ye {
+.scdownload {
     border: #030 5px solid;
     border-radius: 10px;
     background-color: #006c00;
     padding: 7.5px 15px;
     color: lime;
 }
-.ye:hover { background-color: #080; }
-.ye:active { background-color: #050; }
+.scdownload:hover { background-color: #080; }
+.scdownload:active { background-color: #050; }
 
 #btns {
     display: flexbox;
