@@ -23,7 +23,7 @@
     visibility: hidden;
 }
 
-.stuffholder ol {
+.stuffholder ol, .stuffholder ul {
     color: white;
     font-size: 120%;
     margin-top: 10px;
