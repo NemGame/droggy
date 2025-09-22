@@ -1,20 +1,36 @@
 class Stuff {
-    constructor(name="", tags=[], path="") {
-        this.name = name;
+    constructor(title="", tags=[], path="") {
+        this.title = title;
         this.tags = typeof tags == "object" ? tags : [`${tags}`];
-        this.path = path == "" ? Stuff.stuffify(name) : path;
+        this.path = path == "" ? Stuff.stuffify(title) : path;
+        this.content = this.load;
+        this.shit = null;
+        this.loaded = true;
     }
     static get null() {
         return new Stuff();
     }
     static file(path="") {
         let n = new Stuff("", [], path);
+        n.loaded = false;
         n.content.then(x => {
-            [...x.querySelectorAll("dets")].forEach(y => {
-                if (y.localName == "name") this.name = y.textContent;
-                else if (y.localName == "tags") this.tags = y.innerHTML.split("<br>");
+            [...x.querySelectorAll("dets")].map(z => [...z.children]).forEach(y => {
+                y.forEach(y => {
+                    if (y.localName == "name") {
+                        n.title = y.innerText;
+                        y.addEventListener("change", () => {
+
+                        });
+                    }
+                    else if (y.localName == "tags") n.tags = y.innerHTML.split("\n").map(x => x.trim()).filter(x => x);
+                })
             });
-        })
+            if (n.shit) {
+                n.shit.querySelector("p").textContent = n.title;
+            }
+            Search(sb.value);
+            n.loaded = true;
+        }).catch(fuck => console.error(fuck));
         return n;
     }
     static stuffify(x="") {
@@ -24,7 +40,7 @@ class Stuff {
                 .replaceAll("ő", "o").replaceAll("ú", "u")
                 .replaceAll("ü", "u").replaceAll("ű", "u").replaceAll(" ", "_");
     }
-    get content() {
+    get load() {
         return fetch("./data/" + this.path + ".html").then(x => x.text()).then(x => {
             return QuickObjectify(x, "div", "class=stuff");
         })
@@ -49,11 +65,16 @@ function LoadLanguage(div=HTMLDivElement, dict={}, currentLang="hu") {
     }
     div.querySelectorAll("[text]").forEach(x => {
         let text = x.getAttribute("text").toLowerCase();
+        if (!dict[currentLang]) {
+            console.log(`Language not found for ${div.querySelector("[name]")?.textContent}: ${currentLang}`);
+            return 1;
+        }
         if (text in dict[currentLang])
             x.innerHTML = dict[currentLang][text];
         else
             x.innerHTML = text;
-    })
+    });
+    return 0;
 }
 
 function GetDictFromLang(div=HTMLDivElement) {

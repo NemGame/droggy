@@ -1,8 +1,9 @@
 document.addEventListener("DOMContentLoaded", LateLoad);
 
 const astuff = [
-    new Stuff("Controls", "szupi-dupi cucc", "controls"),
-    new Stuff("Default", "stuff", "default")
+    Stuff.file("controls"),
+    Stuff.file("default"),
+    Stuff.file("movement")
 ]
 AssignIDs(astuff);
 
@@ -10,10 +11,34 @@ let params = new URLSearchParams(window.location.search);
 
 let currentLanguage = params.get("lang") || "hu";
 
+params.set("lang", currentLanguage);
+
+const sb = document.getElementById("sb");
+
+sb.value = params.get("search") || "";
+
 function LateLoad() {
-    ReloadFinder();
+    Search();
+    let shit = Number(params.get("open") || "");
+    if (shit != NaN) {
+        DoWhenAllIsLoaded(() => {
+            Search("");
+            OpenTh(shit);
+            Search(sb.value);
+        });
+    }
+
+    window.history.pushState("", "", BuildURL());
 
     Update();
+}
+
+function DoWhenAllIsLoaded(func) {
+    if (astuff.every(x => x.loaded)) {
+        func();
+    } else {
+        requestAnimationFrame(() => DoWhenAllIsLoaded(func));
+    }
 }
 
 function Update() {
@@ -39,14 +64,19 @@ function ReloadFinder(fuck=astuff) {
     let base = QuickObjectify("<p name></p>", "div", "class=finderStuff");
     fuck.forEach((x, i) => {
         let c = base.cloneNode(true);
-        if (lastSet != null && x.name == lastSet.querySelector("[name]").textContent) c.classList.add("current");
-        c.querySelector("[name]").textContent = x.name;
+        x.shit = c;
+        if (lastSet != null && x.title == lastSet.querySelector("[name]").textContent) c.classList.add("current");
+        c.querySelector("[name]").textContent = x.title;
         c.setAttribute("bound", i);
         c.addEventListener("click", () => {
-            if (lastSet != null) lastSet.classList.remove("current");
+            console.log(lastSet?.querySelector("[name]").textContent);
+            [...document.querySelectorAll(".current")].forEach(x => x.classList.remove("current"));
             lastSet = c;
+            let y = astuff.indexOf(x);
+            params.set("open", y);
+            window.history.pushState("", "", BuildURL());
             c.classList.add("current");
-            LoadStuff(astuff[i]);
+            LoadStuff(astuff[y]);
         })
         finder.appendChild(c);
     });
@@ -54,11 +84,26 @@ function ReloadFinder(fuck=astuff) {
 
 function Search(text="") {
     text = Stuff.stuffify(text);
-    ReloadFinder(astuff.filter(x => Stuff.stuffify(x.name).includes(text)));
+    params.set("search", text);
+    window.history.pushState("", "", BuildURL());
+    ReloadFinder(astuff.filter(x => Stuff.stuffify(x.title).includes(text)));
 }
 
 function AssignIDs(array=[]) {
     array.forEach((x, i) => {
         x.id = i;
     })
+}
+
+function OpenFirst() {
+    document.getElementById("stuffs").firstChild?.click();
+}
+
+function BuildURL() {
+    let x = params.entries();
+    return "?" + [...x].map(x => `${x[0]}=${encodeURI(x[1]).replace("&", "%26")}`).join("&");
+}
+
+function OpenTh(n=1) {
+    document.getElementById("stuffs").querySelector(":nth-child(" + (n + 1) + ")")?.click();
 }
