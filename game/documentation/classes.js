@@ -7,6 +7,16 @@ class Stuff {
     static get null() {
         return new Stuff();
     }
+    static file(path="") {
+        let n = new Stuff("", [], path);
+        n.content.then(x => {
+            [...x.querySelectorAll("dets")].forEach(y => {
+                if (y.localName == "name") this.name = y.textContent;
+                else if (y.localName == "tags") this.tags = y.innerHTML.split("<br>");
+            });
+        })
+        return n;
+    }
     static stuffify(x="") {
         return x.toLowerCase().replaceAll("á", "a")
                 .replaceAll("é", "e").replaceAll("í", "i")
