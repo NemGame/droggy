@@ -146,6 +146,7 @@ keys.bindkey("ShitRight", () => {
 //#region UI
 keys.bindkey("F11", ToggleFullscreen, "press");
 keys.bindkey("F12", ToggleScreenshot, "press");
+keys.bindkey("KeyX", ToggleScreenshot, "press");
 keys.bindkey("Escape", EscapeFunction, "press");
 //#endregion
 //#endregion
@@ -215,17 +216,23 @@ function ToggleFullscreen(bool=69) {
     }
 }
 
+let screenshot = "";
+
 function ToggleScreenshot() {
     const s = document.querySelector(".screenshotholder");
     const img = document.getElementById("screenshotImage");
     if (s.style.visibility == "hidden") {
-        img.src = c.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        screenshot = c.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        img.src = screenshot;
         s.style.visibility = "visible";
     }
     else s.style.visibility = "hidden";
 }
 
 function DownloadCanvasAsImage(download=null) {
+    if (download == Infinity) {
+        download = screenshot;
+    }
     let link = document.createElement("a");
     link.setAttribute("download", "screenshot_" + Date.now() + ".png");
     link.setAttribute("href", download != null ? download : c.toDataURL("image/png").replace("image/png", "image/octet-stream"));
