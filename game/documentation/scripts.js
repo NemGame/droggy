@@ -69,7 +69,6 @@ function ReloadFinder(fuck=astuff) {
         c.querySelector("[name]").textContent = x.title;
         c.setAttribute("bound", i);
         c.addEventListener("click", () => {
-            console.log(lastSet?.querySelector("[name]").textContent);
             [...document.querySelectorAll(".current")].forEach(x => x.classList.remove("current"));
             lastSet = c;
             let y = astuff.indexOf(x);
