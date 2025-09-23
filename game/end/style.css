@@ -1,0 +1,13 @@
+body {
+    background-color: #12d79a;
+}
+.main {
+    text-align: center;
+}
+p {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+.catgif {
+    border-radius: 10px;
+}

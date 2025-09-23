@@ -8,10 +8,7 @@ const astuff = [
 AssignIDs(astuff);
 
 let params = new URLSearchParams(window.location.search);
-
-let currentLanguage = params.get("lang") || "hu";
-
-params.set("lang", currentLanguage);
+let autoreload = false;
 
 const sb = document.getElementById("sb");
 
@@ -30,7 +27,7 @@ function LateLoad() {
 
     window.history.pushState("", "", BuildURL());
 
-    Update();
+    Update(2);
 }
 
 function DoWhenAllIsLoaded(func) {
@@ -41,9 +38,10 @@ function DoWhenAllIsLoaded(func) {
     }
 }
 
-function Update() {
-    
-    requestAnimationFrame(Update);
+function Update(x=0) {
+    if (x == 1) LanguageManager.listen(ReloadOpen);
+    if (x == 2) requestAnimationFrame(() => { Update(1); });
+    else requestAnimationFrame(Update);
 }
 
 function LoadStuff(stuff=Stuff.null) {
@@ -105,4 +103,10 @@ function BuildURL() {
 
 function OpenTh(n=1) {
     document.getElementById("stuffs").querySelector(":nth-child(" + (n + 1) + ")")?.click();
+}
+
+function ReloadOpen() {
+    if (!lastSet) return 1;
+    LoadStuff(astuff[Number(lastSet.getAttribute("bound"))]);
+    return 0;
 }

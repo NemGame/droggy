@@ -1,0 +1,18 @@
+h1{
+    text-align: center;
+    color: aqua;
+}
+h2{
+    color: aqua;
+    font-weight: bold;
+}
+tr {
+    text-align: center;
+    
+}
+table {
+    margin-left: 40%;
+}
+body {
+    background-image: url(letöltés.jfif);
+}

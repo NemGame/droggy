@@ -1,0 +1,7 @@
+.navig a:hover, a:link, a:visited{
+    color: black;
+    text-decoration: none;
+}
+.navig {
+    position: fixed;
+}

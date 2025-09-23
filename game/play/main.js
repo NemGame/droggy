@@ -152,7 +152,6 @@ keys.bindkey("Escape", EscapeFunction, "press");
 //#endregion
 
 function LateLoad() {
-    LanguageManager.setLang("hu");
     ToggleScreenshot();
     keys.lockAllKeys();
     LoadCanvas();
