@@ -11,6 +11,7 @@ HP++ | egészségi cucc, pl. maszk, gyógyszer
 	- Cauliflower:
 		~ rare
 		~ hp++ 5
+	- Bandage hp++ 3
 HP-- | szar cucc, burger
 	- fastfood:
 		~ hp--
@@ -43,7 +44,25 @@ Supported languages:
 
 Collectables:
 	- running shoes: ya can run
+	- backpack: unlocks inventory
 
 https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.cnet.com%2Fpictures%2F10-memorable-moments-from-pokemon-red-and-blue%2F&psig=AOvVaw3t9Injxo4yue8syPAgyrbq&ust=1757661708137000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCND3-ZyW0I8DFQAAAAAdAAAAABAV
 
 Fake scaling
+
+drawings:
+	charakter ✓
+	fruits/veggies ✓
+	items✓
+	debuff items (brick, brickbu not real)✓
+	background ✓
+	inventory ✓
+	hotbar ✓
+	shops(pokemon game revive thingy) ✓
+	coins ✓
+	walls? X
+	npc (woden board) ✓
+	text boksz X
+	chest, chest open anim. ✓
+	eating anim.? X
+	
