@@ -160,6 +160,10 @@ class keysClass {
         });
     }
     lockAllKeys(except = []) {
+        if (!navigator.keyboard || !navigator.keyboard.lock) {
+            console.warn("Keyboard lock is not supported");
+            return 1;
+        }
         let codes = [
             ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map(x => "Key" + x),
             ..."0123456789".split("").map(x => "Digit" + x),

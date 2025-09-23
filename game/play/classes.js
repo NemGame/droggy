@@ -236,3 +236,39 @@ class Tile {
         this.texture.drawAt(this.pos);
     }
 }
+
+class Item {
+    constructor(name="item", texture=Texture.null, isEdible=true, effect=() =>{}, effectDuratation=Infinity) {
+        this.name = name;
+        this.texture = texture;
+        this.isEdible = isEdible;
+        this.effect = effect;
+        this.effectDuratation = effectDuratation;
+        this.effectID = 0;
+    }
+    eat() {
+        if (!this.isEdible) return;
+        console.log("Food ate: " + this.name);
+        this.startTimer();
+        return this;
+    }
+    startTimer() {
+        this.effectID++;
+        if (this.effectDuratation != Infinity) {
+            setTimeout(() => {
+                this.effectID++;
+            }, this.effectDuratation);
+        }
+        this.timer();
+    }
+    timer(id=this.effectID) {
+        if (id != this.effectID) return;
+
+        this.effect();
+
+        requestAnimationFrame(() => { this.timer(id); });
+    }
+    stopTimer() {
+        this.effectID++;
+    }
+}

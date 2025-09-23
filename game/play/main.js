@@ -205,12 +205,20 @@ function GetTextureWithSourceImage(source="") {
     return null;
 }
 
+const fullscreenImg = document.querySelector("#fullscreen img");
+
 function ToggleFullscreen(bool=69) {
     if ((document.fullscreenElement && bool != true)) {
-        if (document.exitFullscreen) document.exitFullscreen();
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+            fullscreenImg.src = "./imgs/fullscreen.png";
+        }
         else console.error("Failed exit fullscreen mode: document.exitFullscreen does not exist");
     } else if (bool != false){
-        if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen();
+            fullscreenImg.src = "./imgs/fullscreenClose.png";
+        }
         else console.error("Failed to enter fullscreen mode: c.requestFullscreen does not exist");
     }
 }

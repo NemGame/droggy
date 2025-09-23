@@ -24,20 +24,25 @@ canvas:not(#main) {
     position: relative;
 }
 
-#fullscreen, #docs {
+#fullscreen {
     position: fixed;
     right: 2.5px;
-    top: 2.5px;
+    bottom: 2.5px;
     border: 0;
     border-radius: 5px;
     padding: 5px 10px;
     z-index: -2;
     cursor: pointer;
+    background-color: #ddd;
+    transition: background-color 0.0625s ease;
 }
 
-#docs {
-    left: 2.5px;
-    right: initial;
+#fullscreen:hover { background-color: #fff; }
+#fullscreen:active { background-color: #aaa; }
+
+#fullscreen img {
+    width: 32px;
+    height: 32px;
 }
 
 .screenshotholder {
@@ -107,4 +112,8 @@ canvas:not(#main) {
 
 .title h2 {
     margin: 0;
+}
+
+load {
+    visibility: hidden;
 }
