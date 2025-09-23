@@ -29,14 +29,15 @@ class LanguageManager {
         console.log("saving language: " + currentLanguage);
         localStorage.setItem("currentLanguage", lang);
     }
-    static reloadLanguage() {
-        if (typeof langs == "undefined") {
+    static reloadLanguage(shit=null, dict=langs) {
+        if (typeof dict == "undefined") {
             console.error("langs not defined");
             return 1;
         }
-        let lang = langs[currentLanguage];
+        let lang = dict[currentLanguage];
         if (lang == undefined) return;
-        document.querySelectorAll("[text]").forEach(x => {
+        let x = shit == null ? document.querySelectorAll("[text]") : shit;
+        x.forEach(x => {
             let y = x.getAttribute("text");
             if (y in lang) x.textContent = lang[y];
             else {
@@ -53,5 +54,15 @@ class LanguageManager {
 let currentLanguage = "balu";
 
 let listensToLanguageChange = [];
+
+LanguageManager.listen(() => {
+    let frames = document.querySelectorAll("iframe");
+    frames.forEach(frame => {
+        frame.contentWindow.postMessage(
+            { type: "langChange", lang: currentLanguage },
+            "*"
+        );
+    });
+});
 
 LanguageManager.load();
