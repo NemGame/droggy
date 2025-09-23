@@ -10,10 +10,6 @@ window.addEventListener("message", (event) => {
     }
 });
 
-let iframe = parent.window.document.querySelector("iframe");
-if (!iframe) iframe = document.querySelector("nav");
-const cons = parent.window.console || window.console;
-
 function Reload() {
     if (typeof langs== "undefined") {
         console.error("langs not defined");
@@ -32,12 +28,12 @@ function Reload() {
     });
 }
 
-function height() {
-    return document.querySelector("nav").clientHeight;
-}
-
 function ResizeIFrame() {
     iframe.style.height = height() + 10 + "px";
+}
+
+function height() {
+    return document.querySelector("nav").clientHeight;
 }
 
 function Update() {
@@ -46,15 +42,5 @@ function Update() {
     requestAnimationFrame(Update);
 }
 
-function SetupIFrame() {
-    iframe.style.transition = "transform 0.25s ease";
-    iframe.style.width = "100%";
-    iframe.style.position = "fixed";
-    iframe.style.top = "0";
-    iframe.style.left = "0";
-    iframe.style.zIndex = "999";
-}
-
-SetupIFrame();
 ResizeIFrame();
 Update();
