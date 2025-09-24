@@ -3,6 +3,9 @@ document.addEventListener("mousemove", (event) => {
     const b = c.getBoundingClientRect();
     mpos = Vector.as((event.clientX - b.left) * (c.width / b.width), (event.clientY - b.top) * (c.height / b.height)).rounded;
 });
+document.addEventListener("fullscreenchange", (e) => {
+    console.log(e)
+});
 
 let mpos = Vector.null;
 
@@ -159,6 +162,9 @@ function LateLoad() {
     Update();
 }
 
+let f11for = 0;
+let f11peak = -1;
+
 function Update() {
     if (keys.isKeyDown("AltLeft") && keys.isKeyDown("F4")) ToggleFullscreen(false);
     ReloadCanvas();
@@ -176,7 +182,22 @@ function Update() {
 
     player.draw();
 
-
+    if (IsProllyInFullscreen() && !fullscreenMode) {
+        f11for++;
+        if (f11for > 2) {
+            fullscreenImg.src = "./imgs/fullscreenF11.png";
+            fullscreenButton.setAttribute("disabled", "");
+            f11peak = f11for;
+        }
+    } else {
+        if (f11for == f11peak) {
+            console.log("-fsc");
+            fullscreenImg.src = "./imgs/fullscreen.png";
+            fullscreenButton.removeAttribute("disabled");
+        }
+        f11for = 0;
+        f11peak = -1;
+    }
 
     requestAnimationFrame(Update);
 }
@@ -206,16 +227,20 @@ function GetTextureWithSourceImage(source="") {
 }
 
 const fullscreenImg = document.querySelector("#fullscreen img");
-
+const fullscreenButton = document.querySelector("#fullscreen");
+/** Don't change it, it's only for getting infos */
+let fullscreenMode = false;
 function ToggleFullscreen(bool=69) {
     if ((document.fullscreenElement && bool != true)) {
         if (document.exitFullscreen) {
+            fullscreenMode = false;
             document.exitFullscreen();
             fullscreenImg.src = "./imgs/fullscreen.png";
         }
         else console.error("Failed exit fullscreen mode: document.exitFullscreen does not exist");
     } else if (bool != false){
         if (document.documentElement.requestFullscreen) {
+            fullscreenMode = true;
             document.documentElement.requestFullscreen();
             fullscreenImg.src = "./imgs/fullscreenClose.png";
         }
@@ -249,4 +274,8 @@ function DownloadCanvasAsImage(download=null) {
 function EscapeFunction() {
     const sholder = document.querySelector(".screenshotholder");
     if (getComputedStyle(sholder).visibility == "visible") ToggleScreenshot();
+}
+
+function IsProllyInFullscreen() {
+    return screen.height <= window.innerHeight;
 }

@@ -45,6 +45,10 @@ canvas:not(#main) {
     height: 32px;
 }
 
+#fullscreen[disabled] {
+    background-color: #888;
+}
+
 .screenshotholder {
     position: fixed;
     top: 0;
