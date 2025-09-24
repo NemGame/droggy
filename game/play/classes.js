@@ -11,7 +11,7 @@ class Player {
         this.lastDirPressed = Vector.null;
         let screen = canvasSize.deved(2).rounded
         this.generationDistance = screen;
-        this.renderDistance = screen;
+        this.renderDistance = screen.self;
         this.isRunning = false;
         this.runningMult = 1.7;
     }
