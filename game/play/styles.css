@@ -40,11 +40,6 @@ canvas:not(#main) {
 #fullscreen:hover { background-color: #fff; }
 #fullscreen:active { background-color: #aaa; }
 
-#fullscreen img {
-    width: 32px;
-    height: 32px;
-}
-
 #fullscreen[disabled] {
     background-color: #888;
 }

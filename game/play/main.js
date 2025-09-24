@@ -15,6 +15,9 @@ c.addEventListener("contextmenu", (e) => e.preventDefault());
 let canvasSize = Vector.as(21, 16);
 
 let res = 1/4;
+
+let tileRandom = random();
+
 /**
  * @example
  * 0 - localhost
@@ -31,7 +34,8 @@ const textures = {
     "ground": new Texture("og_padlo.png"),
     "chest": new Texture("chest.png"),
     "undefined": Texture.null,
-    "apple": new Texture("aple.png")
+    "apple": new Texture("aple.png"),
+    "shop": new Texture("shop_ig.png")
 };
 Object.values(textures).forEach(x => x.init());
 const player = new Player(canvasSize.deved(2).floor.mult(16), 16, 1, textures["fella_animation_test.png"]);
@@ -39,7 +43,11 @@ const items = {
     "undefined": Item.null,
     "apple": new Item("Apple", textures["aple"], true, () => { player.hp++; }, 1000)
 };
-
+const rareTiles = {
+    "shop": new Structure("shop", [
+        new Tile(Vector.null, textures["shop"])
+    ], 0.0005, false)
+}
 let tiles = {};
 player.autoGenerateTiles();
 
@@ -60,7 +68,7 @@ function TileAt(pos=Vector.null) {
     return tiles[pos.y][pos.x];
 }
 
-function GenerateNeighbourTiles(pos=Vector.null, size=16, dist=1) {
+function GenerateNeighbourTiles(pos=Vector.null, size=16, texture=Texture.null, dist=1) {
     let newTiles = [];
     for (let i = -dist; i < dist + 1; i++) {
         for (let y = -dist; y < dist + 1; y++) {
@@ -71,8 +79,12 @@ function GenerateNeighbourTiles(pos=Vector.null, size=16, dist=1) {
             tiles[apos.y][apos.x] = new Tile(apos, textures[type]);
             newTiles.push(apos.self);
 
-            if (IsRareTile(apos, 0.05)) {
-                GenerateStructureAt(apos);
+            let values = Object.values(rareTiles);
+            for (let tile of values) {
+                if (tile.canSpawnAt(apos)) {
+                    tile.generateAt(apos);
+                    console.log(`${tile.name} generated at ${apos}`)
+                }
             }
         }
     }
@@ -80,15 +92,11 @@ function GenerateNeighbourTiles(pos=Vector.null, size=16, dist=1) {
     return newTiles;
 }
 
-function TryGeneratingAStructureAt(pos=Vector.null) {
-
-}
-
 function TypeOfTileAt(pos=Vector.null) {
-    let tileTypes = ["ground", "undefined"];
+    let tileTypes = ["ground"];
     
     // Random seed a pozícióhoz (ha szeretnéd, hogy determinisztikus legyen)
-    let seed = (pos.x * 374761393 + pos.y * 668265263) % 2147483647;
+    let seed = (pos.x * 374761393 + pos.y * (randomf() * (9e8 - 1e8) + 1e8)) % 2147483647;
     let r = randomSeed.seedRandom(seed)(); // vagy csak sima random() ha nem kell determinisztikus
     
     let n = Math.floor(r * tileTypes.length);
@@ -297,7 +305,7 @@ function DownloadCanvasAsImage(download=null) {
         download = screenshot;
     }
     let link = document.createElement("a");
-    link.setAttribute("download", "droggy_screenshot_" + Date.now() + ".png");
+    link.setAttribute("download", "screenshot_" + Date.now() + ".png");
     link.setAttribute("href", download != null ? download : c.toDataURL("image/png").replace("image/png", "image/octet-stream"));
     link.click();
 }
@@ -324,4 +332,10 @@ function SpawnItemAt(pos=Vector.null, item=Item.null, override=false) {
     }
     if (override) tile.setItem(item);
     else tile.addItem(item);
+}
+
+function RegenerateMapWithRandomSeed() {
+    randomSeed.reloadRandomWithSeed(Math.random() * Date.now());
+    RemoveAllTiles();
+    player.generateTiles();
 }

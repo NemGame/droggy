@@ -9,6 +9,7 @@ function SetupIFrame() {
     iframe.style.top = "0";
     iframe.style.left = "0";
     iframe.style.zIndex = "999";
+    iframe.title = "navbar";
 }
 
 SetupIFrame();

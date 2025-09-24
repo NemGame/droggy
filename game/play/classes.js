@@ -9,8 +9,8 @@ class Player {
         this.moveDirection = Vector.null;
         this.canWalkDiagonally = false;
         this.lastDirPressed = Vector.null;
-        this.generationDistance = 3;
-        this.renderDistance = 5;
+        this.generationDistance = 10;
+        this.renderDistance = 10;
         this.isRunning = false;
         this.runningMult = 1.7;
     }
@@ -77,7 +77,7 @@ class ColliderRect {
 }
 
 class Texture {
-    constructor(source="undefined", overlayOnDraw = [], animations = []) {
+    constructor(source="undefined", overlayOnDraw = [], animations = [], doSlice=true) {
         this.source = source;
         this.overlayOnDraw = typeof overlayOnDraw == "object" ? overlayOnDraw : [overlayOnDraw];
         this.overlayOnDrawTextures = [];
@@ -85,7 +85,7 @@ class Texture {
         this.state = 0;
         this.id = 0;
         this.pics = [];
-        this.slice();
+        if (doSlice) this.slice();
     }
     static isCanvasEmpty(canvas) {
         const ctx = canvas.getContext("2d");
@@ -94,6 +94,14 @@ class Texture {
     }
     static get null() {
         return new Texture();
+    }
+    get self() {
+        let t = new Texture(this.source, [...this.overlayOnDraw], [...this.animations], false);
+        t.overlayOnDrawTextures = [...this.overlayOnDrawTextures];
+        t.state = this.state;
+        t.id = this.id;
+        t.pics = [...this.pics];
+        return t;
     }
     get current() {
         this.correct();
@@ -233,6 +241,11 @@ class Tile {
     static get null() {
         return new Tile();
     }
+    get self() {
+        let tile = new Tile(this.pos.self, texture.self);
+        tile.heldItem = this.heldItem.self;
+        return tile;
+    }
     draw() {
         this.texture.drawAt(this.pos);
         if (this.heldItem != null) this.heldItem.draw();
@@ -250,6 +263,9 @@ class Tile {
         this.heldItem = null;
         return this;
     }
+    tilePos(pos=Vector.null) {
+        return new TilePos(this, pos);
+    }
 }
 
 class Item {
@@ -261,6 +277,11 @@ class Item {
         this.effectDuratation = effectDuratation;
         this.effectID = 0;
     }
+    get self() {
+        let item = new Item(this.name, this.texture.self, this.isEdible, this.effect, this.effectDuratation);
+        item.effectID = this.effectID;
+        return item;
+    }
     eat() {
         if (!this.isEdible) return;
         console.log("Food ate: " + this.name);
@@ -271,7 +292,7 @@ class Item {
         this.effectID++;
         if (this.effectDuratation != Infinity) {
             setTimeout(() => {
-                this.effectID++;
+                this.stopTimer();
             }, this.effectDuratation);
         }
         this.timer();
@@ -289,5 +310,47 @@ class Item {
     draw(pos=Vector.null) {
         this.texture.drawAt(pos);
         return this;
+    }
+}
+
+class TilePos {
+    constructor(tile=Tile.null, pos=Vector.null) {
+        this.tile = tile;
+        this.pos = pos;
+    }
+    static get null() {
+        return new TilePos();
+    }
+    get self() {
+        return new TilePos(this.tile.self, this.pos.self);
+    }
+}
+
+class Structure {
+    /**
+     * @param {String} name name
+     * @param {TilePos[]} tiles tiles
+     * @param {Boolean} afterGeneration if it has structures
+     */
+    constructor(name="Structure", tiles=[], rarity=0.05, afterGeneration=false) {
+        this.name = name;
+        this.tiles = tiles;
+        this.rarity = rarity;
+        this.afterGeneration = afterGeneration;
+    }
+    static get null() {
+        return new Structure();
+    }
+    canSpawnAt(pos=Vector.null) {
+        let seed = (pos.x * 1234567 + pos.y * (randomth(2) * (9e8 - 1e8) + 1e8)) % 2147483647;
+        let r = randomSeed.seedRandom(seed)();
+        return r < this.rarity;
+    }
+    generateAt(pos=Vector.null) {
+        this.tiles.forEach(tile => {
+            let p = tile.pos.added(pos);
+            tiles[p.y] ??= {};
+            tiles[p.y][p.x] = new Tile(p, tile.texture);
+        })
     }
 }

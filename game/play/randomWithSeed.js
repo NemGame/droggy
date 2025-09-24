@@ -39,10 +39,21 @@ class randomSeed {
         return [h1>>>0, h2>>>0, h3>>>0, h4>>>0];
     }
     static reloadRandomWithSeed(seed=0) {
-        random = randomSeed.seedRandom(seed);
+        random = () => randomSeed.seedRandom(seed);
+        randomf = () => randomSeed.seedRandom(seed)();
+        randomth = (n=1) => {
+            let rand = randomSeed.seedRandom(seed);
+            for (let i = 0; i < n - 1; i++) rand();
+            return rand();
+        };
+        randomb = (min=0, max=0) => { return random() * (max - min) + min; };
     }
 }
 
-let random = randomSeed.seedRandom(69);
-let randomb = (min=0, max=0) => { return random() * (max - min) + min; };
+let startingSeed = 69;
+let random;
+let randomf;
+let randomth;
+let randomb;
+randomSeed.reloadRandomWithSeed(Math.random() * Date.now());
 let int = (x) => Number.parseInt(x);
