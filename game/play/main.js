@@ -71,10 +71,10 @@ function TileAt(pos=Vector.null) {
     return tiles[pos.y][pos.x];
 }
 
-function GenerateNeighbourTiles(pos=Vector.null, size=16, texture=Texture.null, dist=1) {
+function GenerateNeighbourTiles(pos=Vector.null, size=16, texture=Texture.null, dist=Vector.null) {
     let newTiles = [];
-    for (let i = -dist; i < dist + 1; i++) {
-        for (let y = -dist; y < dist + 1; y++) {
+    for (let i = -dist.x; i < dist.x + 1; i++) {
+        for (let y = -dist.y; y < dist.y + 1; y++) {
             let apos = pos.added(Vector.as(i * size, y * size)).rounded;
             if (DoesTileExist(apos) || !apos.isDivisibleBy(size)) continue;
             let type = TypeOfTileAt(apos);
@@ -113,10 +113,10 @@ function RemoveAllTiles() {
 function DrawShownTiles() {
     // let pos = player.pos.placeInGrid(16).mult(16);
     let pos = cameraPos.placeInGrid(16).mult(16);
-    ctx.rect(pos.x - player.renderDistance * 16 - cameraPos.x + cameraOffset.x, pos.y - player.renderDistance * 16 - cameraPos.y + cameraOffset.y, 
-            (player.renderDistance + 0.5) * 32, (player.renderDistance + 0.5) * 32);
-    for (let i = -player.renderDistance; i < player.renderDistance + 1; i++) {
-        for (let y = -player.renderDistance; y < player.renderDistance + 1; y++) {
+    ctx.rect(pos.x - player.renderDistance.x * 16 - cameraPos.x + cameraOffset.x, pos.y - player.renderDistance.y * 16 - cameraPos.y + cameraOffset.y, 
+            (player.renderDistance.x + 0.5) * 32, (player.renderDistance.y + 0.5) * 32);
+    for (let i = -player.renderDistance.y; i < player.renderDistance.y + 1; i++) {
+        for (let y = -player.renderDistance.x; y < player.renderDistance.x + 1; y++) {
             if (tiles[pos.y + (i * 16)] === undefined || tiles[pos.y + (i * 16)][pos.x + (y * 16)] === undefined) continue;
             tiles[pos.y + (i * 16)][pos.x + (y * 16)].draw();
         }
@@ -343,4 +343,9 @@ function RegenerateMapWithRandomSeed() {
     randomSeed.reloadRandomWithSeed(Math.random() * Date.now());
     RemoveAllTiles();
     player.generateTiles();
+}
+
+function Zoom(n=1) {
+    canvasSize.mult(n);
+    cameraOffset.mult(n);
 }

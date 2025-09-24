@@ -5,7 +5,7 @@
  * [ngakos.lol/libloader](https://www.ngakos.lol/libloader)
  * */
 class Vector {
-    constructor(x=0, y=0) {
+    constructor(x=0, y=x) {
         this.x = x;
         this.y = y;
     }
@@ -135,7 +135,7 @@ class Vector {
         return new Vector(0, 0)
     }
     /** Basically .new() */
-    static as(x=0, y=0) {
+    static as(x=0, y=x) {
         return new Vector(x, y);
     }
     /** Négyzet grid */

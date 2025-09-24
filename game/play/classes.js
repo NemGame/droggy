@@ -9,8 +9,9 @@ class Player {
         this.moveDirection = Vector.null;
         this.canWalkDiagonally = false;
         this.lastDirPressed = Vector.null;
-        this.generationDistance = 11;
-        this.renderDistance = 11;
+        let screen = canvasSize.deved(2).rounded
+        this.generationDistance = screen;
+        this.renderDistance = screen;
         this.isRunning = false;
         this.runningMult = 1.7;
     }
