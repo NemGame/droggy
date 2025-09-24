@@ -15,7 +15,7 @@ class Player {
         this.isRunning = false;
         this.runningMult = 1.7;
         this.hp = 100;
-        this.baseHealthDecreaseRate = this.hp/60000;
+        this.baseHealthDecreaseRate = this.hp/30000;
         this.healthDecreaseRate = this.baseHealthDecreaseRate;
         this.autoHealthDecrease();
         this.effects = {};
@@ -23,6 +23,26 @@ class Player {
         this.canEat = true;
         this.coins = 0;
         this.eaten = new Set();
+        this.totalStuffEaten = 0;
+        this.hasBackpack = false;
+        this.slots = 9;
+        this.inventory = Array.from({ length: this.slots }).fill(null);
+        this.isBlurred = false;
+        this.isalive = true;
+    }
+    reset() {
+        this.hp = 100;
+        this.inventory = Array.from({ length: this.slots }).fill(null);
+        this.isBlurred = false;
+        this.hasBackpack = false;
+        this.totalStuffEaten = 0;
+        this.effects = {};
+        this.canRun = true;
+        this.canEat = true;
+        this.coins = 0;
+        this.eaten = new Set();
+        this.isRunning = false;
+        this.isalive = true;
     }
     updateReset() {
         this.healthDecreaseRate = this.baseHealthDecreaseRate;
@@ -42,6 +62,11 @@ class Player {
         this.updateReset();
         let sorted = Object.values(this.effects).sort((a, b) => a.priority - b.priority);
         sorted.forEach(x => x.func());
+        c.style.imageRendering = this.isBlurred ? "auto" : "pixelated";
+        if (this.hp < 1) {
+            Death();
+            this.isalive = false;
+        }
     }
     autoHealthDecrease() {
         this.hp -= this.healthDecreaseRate * deltaTime;
@@ -84,6 +109,19 @@ class Player {
     autoGenerateTiles() {
         return this.generateTiles(this.generationDistance);
     }
+    drawHotbar() {
+        if (!this.hasBackpack) return;
+        let twidth = this.slots * 16 + 1;
+        let height = 17;
+        let pos = Vector.as((c.width - twidth) / 2, c.height - height - 5).rounded.add(0.5);
+        let slot = new Tile(Vector.null, textures["slot"])
+        this.inventory.forEach((x, i) => {
+            let y = slot.self;
+            y.pos = pos.added(Vector.as(i * 16, 0)).rounded;
+            y.heldItem = x;
+            y.draw(true);
+        })
+    }
     drawHP(smoothen=false) {
         let height = 10, width = 100;
         let pos = Vector.as(c.width + width - canvasSize.x * 16, c.height - height - canvasSize.y * 8).dev(canvasSize).rounded.add(0.5);
@@ -92,6 +130,10 @@ class Player {
         let w = this.hp > 0 ? this.hp / 100 * width - 1 : 0;
         if (smoothen) w = int(w);
         ctx.fillRect(pos.x + 0.5, pos.y + 0.5, w, height - 1);
+        let textPos = Vector.as(pos.x + width - 37.5, pos.y + height / 1.2 - 2).rounded;
+        ctx.fillStyle = "black";
+        ctx.scale(1.6, 1.25);
+        ctx.fillText(this.totalStuffEaten, textPos.x, textPos.y);
     }
     draw() {
         ctx.strokeStyle = this.color;
@@ -99,10 +141,21 @@ class Player {
         // ctx.rect(p.x, p.y, this.size, this.size);
         this.texture.drawCurrentAt(p.subbed(cameraPos).add(cameraOffset).rounded, true);
         ctx.stroke();
-        this.drawHP(false);
+        this.drawHP(!this.isBlurred);
+        this.drawHotbar();
     }
     jumpToTile(tile=Vector.null) {
         this.pos.setv(tile.multed(16));
+    }
+    addToInventory(item=Item.null) {
+        if (!this.hasBackpack) return 1;
+        for (let i = 0; i < this.inventory.length; i++) {
+            if (this.inventory[i] == null) {
+                this.inventory[i] = item;
+                return 0;
+            }
+        }
+        return 1;
     }
 }
 
@@ -298,13 +351,13 @@ class Tile {
         return new Tile();
     }
     get self() {
-        let tile = new Tile(this.pos.self, texture.self);
-        tile.heldItem = this.heldItem.self;
+        let tile = new Tile(this.pos.self, this.texture.self);
+        tile.heldItem = this.heldItem?.self;
         return tile;
     }
-    draw() {
-        this.texture.drawAt(this.pos);
-        if (this.heldItem != null) this.heldItem.draw(this.pos);
+    draw(isPlayer=false) {
+        this.texture.drawAt(this.pos, undefined, undefined, isPlayer);
+        if (this.heldItem != null) this.heldItem.draw(this.pos, isPlayer);
     }
     addItem(item=Item.null) {
         if (this.heldItem != null) return this;
@@ -328,7 +381,7 @@ class Tile {
 }
 
 class Item {
-    constructor(name="item", texture=Texture.null, isEdible=true, effect=() => {}, aftereffect=() => {}, effectDuratation=Infinity, effectDelay=0, effectPriority=0) {
+    constructor(name="item", texture=Texture.null, isEdible=true, effect=() => {}, aftereffect=() => {}, effectDuratation=Infinity, effectDelay=0, effectPriority=0, canPickUpMultipleTimes=true) {
         this.name = name;
         this.texture = texture;
         this.isEdible = isEdible;
@@ -338,6 +391,8 @@ class Item {
         this.effectDelay = effectDelay;
         this.effectPriority = effectPriority;
         this.effectID = 0;
+        this.inBackpack = false;
+        this.canPickUpMultipleTimes = canPickUpMultipleTimes;
     }
     get self() {
         let item = new Item(this.name, this.texture.self, this.isEdible, this.effect, this.effectDuratation);
@@ -353,9 +408,18 @@ class Item {
     startTimer() {
         this.effectID++;
         let id = NextInLine(Object.keys(player.effects));
+        if (!this.canPickUpMultipleTimes && this.name in player.eaten) return;
+        if (player.hasBackpack && !this.inBackpack) {
+            let n = this.self;
+            n.inBackpack = true;
+            if (!player.addToInventory(n)) {
+                return 0;
+            }
+        }
         setTimeout(() => {
             player.effects[id] = new Effect(this.name, this.effectPriority, this.effect);
             player.eaten.add(this.name);
+            player.totalStuffEaten++;
             console.log(`${this.name} added with id ${id}`);
         }, this.effectDelay);
         if (this.effectDuratation != Infinity) {
@@ -375,8 +439,8 @@ class Item {
     stopTimer() {
         this.effectID++;
     }
-    draw(pos=Vector.null) {
-        this.texture.drawAt(pos);
+    draw(pos=Vector.null, isPlayer=false) {
+        this.texture.drawAt(pos, undefined, undefined, isPlayer);
         return this;
     }
 }
@@ -411,6 +475,7 @@ class Structure {
         return new Structure();
     }
     canSpawnAt(pos=Vector.null) {
+        if (player.pos.distanceTo(pos) <= 25) return false;
         let seed = (pos.x * 1234567 + pos.y * (randomth(this.id) * (9e8 - 1e8) + 1e8)) % 2147483647;
         let r = randomSeed.seedRandom(seed)();
         return r < this.rarity;

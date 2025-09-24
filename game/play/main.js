@@ -41,7 +41,10 @@ const textures = {
     "coin": new Texture("coinscuff.png"),
     "brick": new Texture("brick.png"),
     "shoe": new Texture("shoe_itsperfectXD.png"),
-    "pear": new Texture("pear.png")
+    "pear": new Texture("pear.png"),
+    "slot": new Texture("invpiece_plsdupeit.png"),
+    "backpack": new Texture("lowbuget_bagpackXD.png"),
+    "sign": new Texture("npc_ig.png")
 };
 Object.values(textures).forEach(x => x.init());
 const player = new Player(canvasSize.deved(2).floor.mult(16), 16, 1, textures["fella_animation_test.png"]);
@@ -53,29 +56,35 @@ const items = {
     "brick": new Item("Brick", textures["brick"], true, () => { player.canEat = false; }, ()=>{ player.canEat = true; }, 5000, 0, 0),
     "shoe": new Item("Shoe", textures["shoe"], true, () => { player.canRun = false; }, ()=>{ player.canRun = true; }, 5000, 0, 0),
     "pear": new Item("Pear", textures["pear"], true, () => { player.healthDecreaseRate = -0.1; }, ()=>{}, 5000, 1000, 1),
+    "backpack": new Item("Backpack", textures["backpack"], true, () => {}, ()=>{ player.hasBackpack = true; }, 0, 0, 0),
+    "sign": new Item("Sign", textures["sign"], true, () => { player.isBlurred = true; }, ()=>{ player.isBlurred = false; }, 3000, 0, 0),
 };
 const rareTiles = {
-    "shop": new Structure("shop", [
-        new Tile(Vector.null, textures["shop"])
-    ], 0.0005, false),
+    "undefined": Structure.null,
     "brokkoli": new Structure("Brokkoli", [
         new Tile(Vector.null, textures["ground"], items["brokkoli"])
     ], 0.005, false),
     "apple": new Structure("Brokkoli", [
         new Tile(Vector.null, textures["ground"], items["apple"])
-    ], 0.005, false),
+    ], 0.0025, false),
     "coin": new Structure("Coin", [
-        new Tile(Vector.null, textures["ground"], items["coin"])
-    ], 0.0005, false),
+        new Tile(Vector.null, textures["shop"], items["coin"])
+    ], 0.00005, false),
     "brick": new Structure("Brick", [
         new Tile(Vector.null, textures["ground"], items["brick"])
     ], 0.001, false),
     "pear": new Structure("Pear", [
         new Tile(Vector.null, textures["ground"], items["pear"])
-    ], 0.005, false),
+    ], 0.0025, false),
     "shoe": new Structure("Shoe", [
         new Tile(Vector.null, textures["ground"], items["shoe"])
-    ], 0.05, false),
+    ], 0.001, false),
+    "backpack": new Structure("Backpack", [
+        new Tile(Vector.null, textures["ground"], items["backpack"])
+    ], 0.0001, false),
+    "sign": new Structure("Sign", [
+        new Tile(Vector.null, textures["ground"], items["sign"])
+    ], 0.0001, false),
 }
 Object.values(rareTiles).forEach((x, i) => x.id = i);
 let tiles = {};
@@ -233,6 +242,7 @@ function LateLoad() {
     deltaTime = rn - lastTime;
     lastTime = rn;
     ToggleScreenshot();
+    Death();
     keys.lockAllKeys();
     LoadCanvas();
 
@@ -248,8 +258,10 @@ function Update() {
     if (keys.isKeyDown("AltLeft") && keys.isKeyDown("F4")) ToggleFullscreen(false);
     ReloadCanvas();
 
-    player.automove();
-    player.updateEffects();
+    if (player.isalive) {
+        player.automove();
+        player.updateEffects();
+    }
 
     // textures["ground"].drawAt(Vector.null);
 
@@ -384,4 +396,20 @@ function RegenerateMapWithRandomSeed() {
 function Zoom(n=1) {
     canvasSize.mult(n);
     cameraOffset.mult(n);
+}
+
+function Death() {
+    const holder = document.querySelector(".deathHolder");
+    if (holder.style.visibility == "hidden") {
+        document.getElementById("deathCount").textContent = player.totalStuffEaten;
+        holder.style.visibility = "visible";
+    } else {
+        holder.style.visibility = "hidden";
+    }
+}
+
+function Respawn() {
+    RegenerateMapWithRandomSeed();
+    Death();
+    player.reset();
 }

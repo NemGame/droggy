@@ -44,7 +44,7 @@ canvas:not(#main) {
     background-color: #888;
 }
 
-.screenshotholder {
+.screenshotholder, .deathHolder {
     position: fixed;
     top: 0;
     left: 0;
@@ -52,6 +52,10 @@ canvas:not(#main) {
     height: 100%;
     align-content: center;
     visibility: hidden;
+}
+
+.deathHolder {
+    z-index: -1;
 }
 
 .screenshot {
@@ -98,7 +102,7 @@ canvas:not(#main) {
 .scdownload:hover { background-color: #080; }
 .scdownload:active { background-color: #050; }
 
-#btns {
+#btns, .btns {
     display: flexbox;
     flex-direction: row;
     justify-content: center;
@@ -115,4 +119,23 @@ canvas:not(#main) {
 
 load {
     visibility: hidden;
+}
+
+.death {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #222;
+    border: 5px solid #111;
+    width: fit-content;
+    height: fit-content;
+    padding: 0 25px 25px 25px;
+    border-radius: 10px;
+    color: white;
+    text-align: center;
+}
+
+.death h1 {
+    text-align: center;
 }
