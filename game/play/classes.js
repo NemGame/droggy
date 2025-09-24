@@ -228,12 +228,27 @@ class Tile {
     constructor(pos=Vector.null, texture=Texture.null) {
         this.pos = pos;
         this.texture = texture;
+        this.heldItem = Item.null;
     }
     static get null() {
         return new Tile();
     }
     draw() {
         this.texture.drawAt(this.pos);
+        if (this.heldItem != null) this.heldItem.draw();
+    }
+    addItem(item=Item.null) {
+        if (this.heldItem != null) return this;
+        this.heldItem = item;
+        return this;
+    }
+    setItem(item=Item.null) {
+        this.heldItem = item;
+        return this;
+    }
+    removeItem() {
+        this.heldItem = null;
+        return this;
     }
 }
 
@@ -270,5 +285,9 @@ class Item {
     }
     stopTimer() {
         this.effectID++;
+    }
+    draw(pos=Vector.null) {
+        this.texture.drawAt(pos);
+        return this;
     }
 }

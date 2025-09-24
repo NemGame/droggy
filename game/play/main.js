@@ -15,7 +15,6 @@ c.addEventListener("contextmenu", (e) => e.preventDefault());
 let canvasSize = Vector.as(21, 16);
 
 let res = 1/4;
-
 /**
  * @example
  * 0 - localhost
@@ -30,10 +29,16 @@ const textures = {
     "fella_animation_test.png": new Texture("fella_animation_test.png", ["2.png"]),
     "test": new Texture("2state_3id_base.png"),
     "ground": new Texture("og_padlo.png"),
-    "chest": new Texture("chest.png")
+    "chest": new Texture("chest.png"),
+    "undefined": Texture.null,
+    "apple": new Texture("aple.png")
 };
 Object.values(textures).forEach(x => x.init());
 const player = new Player(canvasSize.deved(2).floor.mult(16), 16, 1, textures["fella_animation_test.png"]);
+const items = {
+    "undefined": Item.null,
+    "apple": new Item("Apple", textures["aple"], true, () => { player.hp++; }, 1000)
+};
 
 let tiles = {};
 player.autoGenerateTiles();
@@ -45,26 +50,53 @@ function DoesTileExist(pos=Vector.null) {
     return true;
 }
 
+/**
+ * @param {Vector} pos position x16
+ * @returns {Vector} Vector
+ */
 function TileAt(pos=Vector.null) {
     if (typeof tiles[pos.y] == "undefined") return null;
     if (typeof tiles[pos.y][pos.x] == "undefined") return null;
     return tiles[pos.y][pos.x];
 }
 
-function GenerateNeighbourTiles(pos=Vector.null, size=16, texture=Texture.null, dist=1) {
+function GenerateNeighbourTiles(pos=Vector.null, size=16, dist=1) {
     let newTiles = [];
     for (let i = -dist; i < dist + 1; i++) {
         for (let y = -dist; y < dist + 1; y++) {
-            let rpos = Vector.as(i * size, y * size).added(pos);
             let apos = pos.added(Vector.as(i * size, y * size)).rounded;
             if (DoesTileExist(apos) || !apos.isDivisibleBy(size)) continue;
-            if (tiles[apos.y] == undefined) tiles[apos.y] = {};
-            tiles[apos.y][apos.x] = new Tile(apos, texture);
-            newTiles.push(rpos.self);
+            let type = TypeOfTileAt(apos);
+            tiles[apos.y] ??= {};
+            tiles[apos.y][apos.x] = new Tile(apos, textures[type]);
+            newTiles.push(apos.self);
+
+            if (IsRareTile(apos, 0.05)) {
+                GenerateStructureAt(apos);
+            }
         }
     }
     if (newTiles.length > 0) console.log("New tiles generated");
     return newTiles;
+}
+
+function TryGeneratingAStructureAt(pos=Vector.null) {
+
+}
+
+function TypeOfTileAt(pos=Vector.null) {
+    let tileTypes = ["ground", "undefined"];
+    
+    // Random seed a pozícióhoz (ha szeretnéd, hogy determinisztikus legyen)
+    let seed = (pos.x * 374761393 + pos.y * 668265263) % 2147483647;
+    let r = randomSeed.seedRandom(seed)(); // vagy csak sima random() ha nem kell determinisztikus
+    
+    let n = Math.floor(r * tileTypes.length);
+    return tileTypes[n];
+}
+
+function RemoveAllTiles() {
+    Object.keys(tiles).forEach(x => delete tiles[x]);
 }
 
 function DrawShownTiles() {
@@ -147,7 +179,6 @@ keys.bindkey("ShitRight", () => {
 
 //#endregion
 //#region UI
-keys.bindkey("F11", ToggleFullscreen, "press");
 keys.bindkey("F12", ToggleScreenshot, "press");
 keys.bindkey("KeyX", ToggleScreenshot, "press");
 keys.bindkey("Escape", EscapeFunction, "press");
@@ -266,7 +297,7 @@ function DownloadCanvasAsImage(download=null) {
         download = screenshot;
     }
     let link = document.createElement("a");
-    link.setAttribute("download", "screenshot_" + Date.now() + ".png");
+    link.setAttribute("download", "droggy_screenshot_" + Date.now() + ".png");
     link.setAttribute("href", download != null ? download : c.toDataURL("image/png").replace("image/png", "image/octet-stream"));
     link.click();
 }
@@ -278,4 +309,19 @@ function EscapeFunction() {
 
 function IsProllyInFullscreen() {
     return screen.height <= window.innerHeight;
+}
+
+/**
+ * Spawns the given item at the given location
+ * @param {Vector} pos in grid
+ * @param {Item} item the item
+ */
+function SpawnItemAt(pos=Vector.null, item=Item.null, override=false) {
+    let tile = TileAt(pos.multed(16).rounded);
+    if (tile == null) {
+        console.warn(`No tile in position '${pos}', thus adding an item to it failed`);
+        return 1;
+    }
+    if (override) tile.setItem(item);
+    else tile.addItem(item);
 }
