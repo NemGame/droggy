@@ -16,7 +16,8 @@ let canvasSize = Vector.as(21, 16);
 
 let res = 1/4;
 
-let tileRandom = random();
+let deltaTime = 0;
+let lastTime = Date.now();
 
 /**
  * @example
@@ -35,19 +36,48 @@ const textures = {
     "chest": new Texture("chest.png"),
     "undefined": Texture.null,
     "apple": new Texture("aple.png"),
-    "shop": new Texture("shop_ig.png")
+    "shop": new Texture("shop_ig.png"),
+    "brokkoli": new Texture("brocli.png"),
+    "coin": new Texture("coinscuff.png"),
+    "brick": new Texture("brick.png"),
+    "shoe": new Texture("shoe_itsperfectXD.png"),
+    "pear": new Texture("pear.png")
 };
 Object.values(textures).forEach(x => x.init());
 const player = new Player(canvasSize.deved(2).floor.mult(16), 16, 1, textures["fella_animation_test.png"]);
 const items = {
     "undefined": Item.null,
-    "apple": new Item("Apple", textures["apple"], true, () => { player.hp++; }, 1000)
+    "brokkoli": new Item("Brokkoli", textures["brokkoli"], true, () => { player.healthDecreaseRate = 0.05; }, ()=>{}, 5000, 0),
+    "apple": new Item("Apple", textures["apple"], true, () => { player.healthDecreaseRate = -10; }, ()=>{}, 5000, 0, 1),
+    "coin": new Item("Coin", textures["coin"], true, () => {}, ()=>{ player.coins++; }, 0, 0, 0),
+    "brick": new Item("Brick", textures["brick"], true, () => { player.canEat = false; }, ()=>{ player.canEat = true; }, 5000, 0, 0),
+    "shoe": new Item("Shoe", textures["shoe"], true, () => { player.canRun = false; }, ()=>{ player.canRun = true; }, 5000, 0, 0),
+    "pear": new Item("Pear", textures["pear"], true, () => { player.healthDecreaseRate = -0.1; }, ()=>{}, 5000, 1000, 1),
 };
 const rareTiles = {
     "shop": new Structure("shop", [
         new Tile(Vector.null, textures["shop"])
-    ], 0.0005, false)
+    ], 0.0005, false),
+    "brokkoli": new Structure("Brokkoli", [
+        new Tile(Vector.null, textures["ground"], items["brokkoli"])
+    ], 0.005, false),
+    "apple": new Structure("Brokkoli", [
+        new Tile(Vector.null, textures["ground"], items["apple"])
+    ], 0.005, false),
+    "coin": new Structure("Coin", [
+        new Tile(Vector.null, textures["ground"], items["coin"])
+    ], 0.0005, false),
+    "brick": new Structure("Brick", [
+        new Tile(Vector.null, textures["ground"], items["brick"])
+    ], 0.001, false),
+    "pear": new Structure("Pear", [
+        new Tile(Vector.null, textures["ground"], items["pear"])
+    ], 0.005, false),
+    "shoe": new Structure("Shoe", [
+        new Tile(Vector.null, textures["ground"], items["shoe"])
+    ], 0.05, false),
 }
+Object.values(rareTiles).forEach((x, i) => x.id = i);
 let tiles = {};
 player.autoGenerateTiles();
 
@@ -63,7 +93,7 @@ function DoesTileExist(pos=Vector.null) {
 
 /**
  * @param {Vector} pos position x16
- * @returns {Vector} Vector
+ * @returns {Tile} Vector
  */
 function TileAt(pos=Vector.null) {
     if (typeof tiles[pos.y] == "undefined") return null;
@@ -175,19 +205,19 @@ keys.bindkey("ArrowRight", () => {
 }, "down");
 
 keys.bindkey("ShiftLeft", () => {
-    player.isRunning = true;
+    player.toggleRunning(true);
 }, "down");
 
 keys.bindkey("ShiftLeft", () => {
-    player.isRunning = false;
+    player.toggleRunning(false);
 }, "up");
 
 keys.bindkey("ShiftRight", () => {
-    player.isRunning = true;
+    player.toggleRunning(true);
 }, "down");
 
 keys.bindkey("ShitRight", () => {
-    player.isRunning = false;
+    player.toggleRunning(false);
 }, "up");
 
 //#endregion
@@ -199,9 +229,14 @@ keys.bindkey("Escape", EscapeFunction, "press");
 //#endregion
 
 function LateLoad() {
+    let rn = Date.now();
+    deltaTime = rn - lastTime;
+    lastTime = rn;
     ToggleScreenshot();
     keys.lockAllKeys();
     LoadCanvas();
+
+    SpawnItemAt(Vector.null, items["brokkoli"])
 
     Update();
 }
@@ -214,6 +249,7 @@ function Update() {
     ReloadCanvas();
 
     player.automove();
+    player.updateEffects();
 
     // textures["ground"].drawAt(Vector.null);
 

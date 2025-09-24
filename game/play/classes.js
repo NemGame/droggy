@@ -14,6 +14,44 @@ class Player {
         this.renderDistance = screen.self;
         this.isRunning = false;
         this.runningMult = 1.7;
+        this.hp = 100;
+        this.baseHealthDecreaseRate = this.hp/60000;
+        this.healthDecreaseRate = this.baseHealthDecreaseRate;
+        this.autoHealthDecrease();
+        this.effects = {};
+        this.canRun = true;
+        this.canEat = true;
+        this.coins = 0;
+        this.eaten = new Set();
+    }
+    updateReset() {
+        this.healthDecreaseRate = this.baseHealthDecreaseRate;
+    }
+    updateEffects() {
+        if (this.canEat) {
+            let tiles = [];
+            let dist = 1;
+            let p = this.pos.placeInGrid(16).rounded.mult(16);
+            for (let i = 0; i < dist + 1; i++) {
+                for (let y = 0; y < dist + 1; y++) tiles.push(TileAt(Vector.as(p.x + i * 16, p.y + y * 16)));
+            }
+            tiles.forEach(below => {
+                if (below != null) below.use();
+            });
+        }
+        this.updateReset();
+        let sorted = Object.values(this.effects).sort((a, b) => a.priority - b.priority);
+        sorted.forEach(x => x.func());
+    }
+    autoHealthDecrease() {
+        this.hp -= this.healthDecreaseRate * deltaTime;
+        if (this.hp > 100) this.hp = 100;
+        requestAnimationFrame(this.autoHealthDecrease.bind(this));
+    }
+    toggleRunning(bool=null) {
+        if (bool == null) bool = !this.isRunning;
+        if (!this.canRun || bool == false) this.isRunning = false;
+        else this.isRunning = true;
     }
     automove() {
         if (this.moveDirection.isNull || this.lastDirPressed.isNull) {
@@ -46,12 +84,22 @@ class Player {
     autoGenerateTiles() {
         return this.generateTiles(this.generationDistance);
     }
+    drawHP(smoothen=false) {
+        let height = 10, width = 100;
+        let pos = Vector.as(c.width + width - canvasSize.x * 16, c.height - height - canvasSize.y * 8).dev(canvasSize).rounded.add(0.5);
+        ctx.rect(pos.x, pos.y, width, height);
+        ctx.stroke();
+        let w = this.hp > 0 ? this.hp / 100 * width - 1 : 0;
+        if (smoothen) w = int(w);
+        ctx.fillRect(pos.x + 0.5, pos.y + 0.5, w, height - 1);
+    }
     draw() {
         ctx.strokeStyle = this.color;
         let p = this.pos.rounded;
         // ctx.rect(p.x, p.y, this.size, this.size);
         this.texture.drawCurrentAt(p.subbed(cameraPos).add(cameraOffset).rounded, true);
         ctx.stroke();
+        this.drawHP(false);
     }
     jumpToTile(tile=Vector.null) {
         this.pos.setv(tile.multed(16));
@@ -235,10 +283,16 @@ class TextureAnimation {
 }
 
 class Tile {
-    constructor(pos=Vector.null, texture=Texture.null) {
+    /**
+     * 
+     * @param {Vector} pos pos
+     * @param {Texture} texture texture
+     * @param {Item} item item
+     */
+    constructor(pos=Vector.null, texture=Texture.null, heldItem=null) {
         this.pos = pos;
         this.texture = texture;
-        this.heldItem = Item.null;
+        this.heldItem = heldItem;
     }
     static get null() {
         return new Tile();
@@ -250,7 +304,7 @@ class Tile {
     }
     draw() {
         this.texture.drawAt(this.pos);
-        if (this.heldItem != null) this.heldItem.draw();
+        if (this.heldItem != null) this.heldItem.draw(this.pos);
     }
     addItem(item=Item.null) {
         if (this.heldItem != null) return this;
@@ -265,18 +319,24 @@ class Tile {
         this.heldItem = null;
         return this;
     }
-    tilePos(pos=Vector.null) {
-        return new TilePos(this, pos);
+    use() {
+        if (this.heldItem != null) {
+            this.heldItem.eat();
+            this.heldItem = null;
+        }
     }
 }
 
 class Item {
-    constructor(name="item", texture=Texture.null, isEdible=true, effect=() =>{}, effectDuratation=Infinity) {
+    constructor(name="item", texture=Texture.null, isEdible=true, effect=() => {}, aftereffect=() => {}, effectDuratation=Infinity, effectDelay=0, effectPriority=0) {
         this.name = name;
         this.texture = texture;
         this.isEdible = isEdible;
         this.effect = effect;
+        this.aftereffect = aftereffect;
         this.effectDuratation = effectDuratation;
+        this.effectDelay = effectDelay;
+        this.effectPriority = effectPriority;
         this.effectID = 0;
     }
     get self() {
@@ -292,12 +352,18 @@ class Item {
     }
     startTimer() {
         this.effectID++;
+        let id = NextInLine(Object.keys(player.effects));
+        setTimeout(() => {
+            player.effects[id] = new Effect(this.name, this.effectPriority, this.effect);
+            player.eaten.add(this.name);
+            console.log(`${this.name} added with id ${id}`);
+        }, this.effectDelay);
         if (this.effectDuratation != Infinity) {
             setTimeout(() => {
-                this.stopTimer();
-            }, this.effectDuratation);
+                delete player.effects[id];
+                this.aftereffect();
+            }, this.effectDelay + this.effectDuratation);
         }
-        this.timer();
     }
     timer(id=this.effectID) {
         if (id != this.effectID) return;
@@ -339,12 +405,13 @@ class Structure {
         this.tiles = tiles;
         this.rarity = rarity;
         this.afterGeneration = afterGeneration;
+        this.id = 2;
     }
     static get null() {
         return new Structure();
     }
     canSpawnAt(pos=Vector.null) {
-        let seed = (pos.x * 1234567 + pos.y * (randomth(2) * (9e8 - 1e8) + 1e8)) % 2147483647;
+        let seed = (pos.x * 1234567 + pos.y * (randomth(this.id) * (9e8 - 1e8) + 1e8)) % 2147483647;
         let r = randomSeed.seedRandom(seed)();
         return r < this.rarity;
     }
@@ -352,7 +419,25 @@ class Structure {
         this.tiles.forEach(tile => {
             let p = tile.pos.added(pos);
             tiles[p.y] ??= {};
-            tiles[p.y][p.x] = new Tile(p, tile.texture);
+            tiles[p.y][p.x] = new Tile(p, tile.texture, tile.heldItem);
         })
     }
+}
+
+class Effect {
+    constructor(name="", priority=0, func=()=>{}) {
+        this.name = name;
+        this.priority = priority;
+        this.func = func;
+    }
+}
+
+function NextInLine(array) {
+    array = [...array].sort((a, b) => a - b);
+    let prev = -1;
+    for (let x of array) {
+        if (x - prev != 1) return prev + 1;
+        prev = x;
+    }
+    return array.length;
 }
