@@ -41,7 +41,7 @@ Object.values(textures).forEach(x => x.init());
 const player = new Player(canvasSize.deved(2).floor.mult(16), 16, 1, textures["fella_animation_test.png"]);
 const items = {
     "undefined": Item.null,
-    "apple": new Item("Apple", textures["aple"], true, () => { player.hp++; }, 1000)
+    "apple": new Item("Apple", textures["apple"], true, () => { player.hp++; }, 1000)
 };
 const rareTiles = {
     "shop": new Structure("shop", [
@@ -50,6 +50,9 @@ const rareTiles = {
 }
 let tiles = {};
 player.autoGenerateTiles();
+
+let cameraPos = player.pos;
+let cameraOffset = canvasSize.deved(2).mult(16);
 
 //#region Tile logic
 function DoesTileExist(pos=Vector.null) {
@@ -108,8 +111,10 @@ function RemoveAllTiles() {
 }
 
 function DrawShownTiles() {
-    let pos = player.pos.placeInGrid(16).mult(16);
-    ctx.rect(pos.x - player.renderDistance * 16, pos.y - player.renderDistance * 16, (player.renderDistance + 0.5) * 32, (player.renderDistance + 0.5) * 32);
+    // let pos = player.pos.placeInGrid(16).mult(16);
+    let pos = cameraPos.placeInGrid(16).mult(16);
+    ctx.rect(pos.x - player.renderDistance * 16 - cameraPos.x + cameraOffset.x, pos.y - player.renderDistance * 16 - cameraPos.y + cameraOffset.y, 
+            (player.renderDistance + 0.5) * 32, (player.renderDistance + 0.5) * 32);
     for (let i = -player.renderDistance; i < player.renderDistance + 1; i++) {
         for (let y = -player.renderDistance; y < player.renderDistance + 1; y++) {
             if (tiles[pos.y + (i * 16)] === undefined || tiles[pos.y + (i * 16)][pos.x + (y * 16)] === undefined) continue;

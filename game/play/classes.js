@@ -9,8 +9,8 @@ class Player {
         this.moveDirection = Vector.null;
         this.canWalkDiagonally = false;
         this.lastDirPressed = Vector.null;
-        this.generationDistance = 10;
-        this.renderDistance = 10;
+        this.generationDistance = 11;
+        this.renderDistance = 11;
         this.isRunning = false;
         this.runningMult = 1.7;
     }
@@ -49,7 +49,7 @@ class Player {
         ctx.strokeStyle = this.color;
         let p = this.pos.rounded;
         // ctx.rect(p.x, p.y, this.size, this.size);
-        this.texture.drawCurrentAt(p);
+        this.texture.drawCurrentAt(p.subbed(cameraPos).add(cameraOffset).rounded, true);
         ctx.stroke();
     }
     jumpToTile(tile=Vector.null) {
@@ -163,19 +163,20 @@ class Texture {
             // this.onslicedone();
         });
     }
-    drawAt(pos=Vector.null, state=0, id=0) {
+    drawAt(pos=Vector.null, state=0, id=0, isPlayer=false) {
         if (this.pics.length == 0) return;
         let pic = this.pics[state][id];
         // if (!pic) return console.error(`Pic not found: ${this.source} - ${state}/${id}`);
+        if (!isPlayer) pos = pos.subbed(cameraPos).add(cameraOffset).rounded;
         ctx.drawImage(
             pic,
             pos.x, pos.y
         );
         ctx.stroke();
-        this.overlayOnDrawTextures.forEach(texture => texture.drawCurrentAt(pos));
+        this.overlayOnDrawTextures.forEach(texture => texture.drawCurrentAt(pos, isPlayer));
     }
-    drawCurrentAt(pos=Vector.null) {
-        this.drawAt(pos, this.state, this.id);
+    drawCurrentAt(pos=Vector.null, isPlayer=false) {
+        this.drawAt(pos, this.state, this.id, isPlayer);
     }
     nextFrame() {
         this.id += 1;
