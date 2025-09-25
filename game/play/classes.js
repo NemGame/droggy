@@ -10,7 +10,7 @@ class Player {
         this.moveDirection = Vector.null;
         this.canWalkDiagonally = false;
         this.lastDirPressed = Vector.null;
-        let screen = canvasSize.deved(2).rounded
+        let screen = canvasSize.deved(2).ceil.add(1)
         this.generationDistance = screen;
         this.renderDistance = screen.self;
         this.isRunning = false;
@@ -26,7 +26,7 @@ class Player {
         this.coins = 0;
         this.eaten = new Set();
         this.totalStuffEaten = 0;
-        this.hasBackpack = false;
+        this.hasBackpack = true;
         this.slots = 9;
         this.inventory = Array.from({ length: this.slots }).fill(null);
         this.isBlurred = false;
@@ -117,14 +117,16 @@ class Player {
         if (!this.hasBackpack) return;
         let twidth = this.slots * 16 + 1;
         let height = 17;
-        let pos = Vector.as((c.width - twidth) / 2, c.height - height - 5).rounded.add(0.5);
-        let slot = new Tile(Vector.null, textures["slot"])
+        let pos = Vector.as((c.width - twidth) / 2, c.height - height - 5).dev(Vector.as(3, 1.25)).rounded;
+        let slot = new Tile(Vector.null, textures["slot"]);
+        ctx.beginPath();
         this.inventory.forEach((x, i) => {
             let y = slot.self;
             y.pos = pos.added(Vector.as(i * 16, 0)).rounded;
             y.heldItem = x;
             y.draw(true);
-        })
+        });
+        ctx.closePath();
     }
     drawHP(smoothen=false) {
         let height = 10, width = 100;
@@ -274,6 +276,7 @@ class Texture {
         let pic = this.pics[state][id];
         // if (!pic) return console.error(`Pic not found: ${this.source} - ${state}/${id}`);
         if (!isPlayer) pos = pos.subbed(cameraPos).add(cameraOffset).rounded;
+        pos = pos.added(player.isBlurred ? 0.5 : 0)
         ctx.drawImage(
             pic,
             pos.x, pos.y
@@ -385,7 +388,7 @@ class Tile {
 }
 
 class Item {
-    constructor(name="item", texture=Texture.null, isEdible=true, effect=() => {}, aftereffect=() => {}, effectDuratation=Infinity, effectDelay=0, effectPriority=0, canPickUpMultipleTimes=true, canHaveMultipleAtOnce=false) {
+    constructor(name="item", texture=Texture.null, isEdible=true, effect=() => {}, aftereffect=() => {}, effectDuratation=Infinity, effectDelay=0, effectPriority=0, canPickUpMultipleTimes=true, canMerge=true) {
         this.name = name;
         this.texture = texture;
         this.isEdible = isEdible;
@@ -397,29 +400,28 @@ class Item {
         this.effectID = 0;
         this.inBackpack = false;
         this.canPickUpMultipleTimes = canPickUpMultipleTimes;
-        this.canHaveMultipleAtOnce = canHaveMultipleAtOnce;
+        this.canMerge = canMerge;
     }
     get self() {
         let item = new Item(this.name, this.texture.self, this.isEdible, this.effect, this.effectDuratation);
         item.effectID = this.effectID;
         return item;
     }
-    eat() {
+    eat(log=true, inv=true) {
         if (!this.isEdible) return;
-        console.log("Food ate: " + this.name);
-        this.startTimer();
+        if (log) console.log("Food ate: " + this.name);
+        this.startTimer(this.effectID, log, inv);
         return this;
     }
-    startTimer() {
-        this.effectID++;
+    startTimer(eid=this.effectID, log=true, inv=true) {
         let id = NextInLine(Object.keys(player.effects));
         if (!this.canPickUpMultipleTimes && this.name in player.eaten) return;
-        if (!this.canHaveMultipleAtOnce) {
+        if (!this.canMerge) {
             for (let x of Object.values(player.effects)) {
                 if (x.name == this.name) return;
             }
         }
-        if (player.hasBackpack && !this.inBackpack) {
+        if (player.hasBackpack && !this.inBackpack && inv) {
             let n = this.self;
             n.inBackpack = true;
             if (!player.addToInventory(n)) {
@@ -427,16 +429,17 @@ class Item {
             }
         }
         setTimeout(() => {
+            if (eid != this.effectID) {
+                if (log) console.log(`-> Didn't eat ${this.name} with eid ${eid}, effectID is ${this.effectID}`);
+            }
             player.effects[id] = new Effect(this.name, this.effectPriority, this.effect);
             player.eaten.add(this.name);
             player.totalStuffEaten++;
-            console.log(`${this.name} added with id ${id}`);
+            if (log) console.log(`${this.name} added with id ${eid}`);
+            this.effectID++;
         }, this.effectDelay);
         if (this.effectDuratation != Infinity) {
-            setTimeout(() => {
-                delete player.effects[id];
-                this.aftereffect();
-            }, this.effectDelay + this.effectDuratation);
+            this.stopTimer(id);
         }
     }
     timer(id=this.effectID) {
@@ -446,8 +449,11 @@ class Item {
 
         requestAnimationFrame(() => { this.timer(id); });
     }
-    stopTimer() {
-        this.effectID++;
+    stopTimer(id=0) {
+        setTimeout(() => {
+            delete player.effects[id];
+            this.aftereffect();
+        }, this.effectDelay + this.effectDuratation);
     }
     draw(pos=Vector.null, isPlayer=false) {
         this.texture.drawAt(pos, undefined, undefined, isPlayer);

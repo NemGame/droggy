@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", LateLoad);
 document.addEventListener("mousemove", (event) => {
     const b = c.getBoundingClientRect();
-    mpos = Vector.as((event.clientX - b.left) * (c.width / b.width), (event.clientY - b.top) * (c.height / b.height)).rounded;
+    mpos = Vector.as((event.clientX + window.scrollX - b.left) * (c.width / b.width), (event.clientY + window.scrollY - b.top) * (c.height / b.height)).dev(window.devicePixelRatio).dev(Vector.as(Math.PI / 1.96, Math.PI / 2.5)).rounded;
 });
 document.addEventListener("fullscreenchange", (e) => {
     console.log(e)
@@ -253,9 +253,6 @@ keys.bindkey("Escape", EscapeFunction, "press");
 //#endregion
 
 function LateLoad() {
-    let rn = Date.now();
-    deltaTime = rn - lastTime;
-    lastTime = rn;
     ToggleScreenshot();
     Death();
     keys.lockAllKeys();
@@ -264,12 +261,18 @@ function LateLoad() {
     SpawnItemAt(Vector.null, items["brokkoli"])
 
     Update();
+
+    items["fuck"].eat(false, false);
+    player.addToInventory(items["fuck"])
 }
 
 let f11for = 0;
 let f11peak = -1;
 
 function Update() {
+    let rn = Date.now();
+    deltaTime = rn - lastTime;
+    lastTime = rn;
     if (keys.isKeyDown("AltLeft") && keys.isKeyDown("F4")) ToggleFullscreen(false);
     ReloadCanvas();
 
@@ -282,13 +285,12 @@ function Update() {
 
     DrawShownTiles();
 
+    player.draw();
+
     ctx.beginPath();
     ctx.arc(mpos.x, mpos.y, 1.6, 0, Math.PI * 2);
     ctx.stroke();
     ctx.closePath();
-
-    player.draw();
-
     if (IsProllyInFullscreen() && !fullscreenMode) {
         f11for++;
         if (f11for > 2) {
@@ -312,7 +314,6 @@ function Update() {
 function LoadCanvas() {
     c.style.maxWidth = canvasSize.x * 16;
     c.style.maxHeight = canvasSize.y * 16;
-    c.style.cursor = "none";
 }
 
 function ReloadCanvas() {
