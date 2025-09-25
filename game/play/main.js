@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", LateLoad);
 document.addEventListener("mousemove", (event) => {
     const b = c.getBoundingClientRect();
-    mpos = Vector.as((event.clientX + window.scrollX - b.left) * (c.width / b.width), (event.clientY + window.scrollY - b.top) * (c.height / b.height)).dev(window.devicePixelRatio).dev(Vector.as(Math.PI / 1.96, Math.PI / 2.5)).rounded;
+    mpos = Vector.as((event.clientX - b.left) * (c.width / b.width), (event.clientY - b.top) * (c.height / b.height)).dev(Vector.as(Math.PI / 1.96, Math.PI / 2.5)).rounded;
 });
 document.addEventListener("fullscreenchange", (e) => {
     console.log(e)
