@@ -1,4 +1,4 @@
-/** Version: 1.4
+/** Version: 1.5
  * 
  * Created by NemGamingAkos
  * 
@@ -370,6 +370,16 @@ class Vector {
     /** Returns how manyeth cell is this in */
     placeInGrid(n=16) {
         return this.deved(n).floor;
+    }
+    /** Rounds itself to the nearest values which are divisible by `n` */
+    roundToDivision(n=16) {
+        let diffX = this.x % n;
+        if (diffX < n / 2) this.x -= diffX
+        else this.x -= diffX - n;
+        let diffY = this.y % n;
+        if (diffY < n / 2) this.y -= diffY
+        else this.y -= diffY - n;
+        return this;
     }
     /** Vektor -> String */
     toString(split=";") {

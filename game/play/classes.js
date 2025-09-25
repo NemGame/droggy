@@ -122,9 +122,9 @@ class Player {
         ctx.beginPath();
         this.inventory.forEach((x, i) => {
             let y = slot.self;
-            y.pos = pos.added(Vector.as(i * 16, 0)).rounded;
+            y.pos = pos.added(Vector.as(i * 16, 0)).floor;
             y.heldItem = x;
-            y.draw(true);
+            y.draw(true, false);
         });
         ctx.closePath();
     }
@@ -362,9 +362,9 @@ class Tile {
         tile.heldItem = this.heldItem?.self;
         return tile;
     }
-    draw(isPlayer=false) {
+    draw(isPlayer=false, item=true) {
         this.texture.drawAt(this.pos, undefined, undefined, isPlayer);
-        if (this.heldItem != null) this.heldItem.draw(this.pos, isPlayer);
+        if (this.heldItem != null && item) this.heldItem.draw(this.pos, isPlayer);
     }
     addItem(item=Item.null) {
         if (this.heldItem != null) return this;
