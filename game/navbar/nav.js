@@ -36,11 +36,31 @@ function height() {
     return document.querySelector("nav").clientHeight;
 }
 
+const select = document.querySelector("select");
+
 function Update() {
     if (mpos.y < 11) iframe.style.transform = "translate(0px," + 0 + "px)";
-    if (mpos.y > height() + 5) iframe.style.transform = "translate(0px," + -height() + "px)";
+    if (mpos.y > height() + 5 && document.activeElement == document.body) iframe.style.transform = "translate(0px," + -height() + "px)";
     requestAnimationFrame(Update);
 }
 
+function LangChanged() {
+    parent.window.focus();
+    setLang(select.value);
+    parent.window.setLang(select.value);
+}
+
+function LoadLangs() {
+    const select = document.querySelector("select");
+    Object.keys(langs).forEach(x => {
+        const option = document.createElement("option");
+        option.value = x;
+        option.textContent = x.toUpperCase();
+        select.appendChild(option);
+    });
+    select.value = currentLanguage;
+}
+
+LoadLangs();
 ResizeIFrame();
 Update();

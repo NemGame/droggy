@@ -51,6 +51,10 @@ class LanguageManager {
     }
 }
 
+function setLang(lang) {
+    LanguageManager.setLang(lang);
+}
+
 let currentLanguage = "balu";
 
 let listensToLanguageChange = [];
@@ -66,3 +70,10 @@ LanguageManager.listen(() => {
 });
 
 LanguageManager.load();
+
+window.addEventListener("message", (event) => {
+    if (event.data?.type === "langChange") {
+        LanguageManager.reloadLanguage();
+        console.log("caught")
+    }
+});

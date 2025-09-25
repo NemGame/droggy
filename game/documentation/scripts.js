@@ -1,9 +1,10 @@
 document.addEventListener("DOMContentLoaded", LateLoad);
 
 const astuff = [
+    Stuff.file("lore"),
     Stuff.file("controls"),
-    Stuff.file("default"),
-    Stuff.file("movement")
+    Stuff.file("items"),
+    Stuff.file("log")
 ]
 AssignIDs(astuff);
 

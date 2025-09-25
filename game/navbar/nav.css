@@ -26,7 +26,7 @@ nav {
     transition: transform 0.25s ease;
 }
 
-nav div button {
+nav div button, select {
     height: 100%;
     border: none;
     outline: none;
@@ -37,6 +37,12 @@ nav div button {
     transition: background-color 0.125s ease;
     padding: 1.7ch 20px;
     word-wrap: break-word;
+}
+
+select {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: url(../play/imgs/2.png);
 }
 
 nav div button:hover {

@@ -17,6 +17,7 @@
 .stuffholder h2 {
     color: white;
     text-decoration: underline;
+    margin-top: 10px;
 }
 
 .stuffholder dets {
@@ -28,4 +29,34 @@
     font-size: 120%;
     margin-top: 10px;
     margin-left: 20px;
+}
+
+.stuffholder img {
+    max-width: 100%;
+    border: 1px solid black;
+}
+
+.stuffholder item {
+    background-color: #999;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    padding: 10px;
+}
+
+.stuffholder item img {
+    height: 64px;
+    border: none;
+    image-rendering: pixelated;
+}
+
+.stuffholder item p {
+    font-size: 110%;
+    margin-left: 10px;
+}
+
+.stuffholder h1:not(.title) {
+    color: white;
+    text-align: center;
 }

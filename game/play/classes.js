@@ -2,7 +2,8 @@ class Player {
     constructor(pos=Vector.null, size=100, speed=10, texture=Texture.null) {
         this.pos = pos;
         this.size = size;
-        this.speed = speed;
+        this.baseSpeed = speed;
+        this.speed = this.baseSpeed;
         this.texture = texture;
         this.color = "#fff";
         this.collider = new ColliderRect(this.pos, this.size, this.size);
@@ -13,7 +14,8 @@ class Player {
         this.generationDistance = screen;
         this.renderDistance = screen.self;
         this.isRunning = false;
-        this.runningMult = 1.7;
+        this.baseRunningMult = 1.7;
+        this.runningMult = this.baseRunningMult;
         this.hp = 100;
         this.baseHealthDecreaseRate = this.hp/30000;
         this.healthDecreaseRate = this.baseHealthDecreaseRate;
@@ -46,6 +48,8 @@ class Player {
     }
     updateReset() {
         this.healthDecreaseRate = this.baseHealthDecreaseRate;
+        this.runningMult = this.baseRunningMult;
+        this.speed = this.baseSpeed;
     }
     updateEffects() {
         if (this.canEat) {
@@ -381,7 +385,7 @@ class Tile {
 }
 
 class Item {
-    constructor(name="item", texture=Texture.null, isEdible=true, effect=() => {}, aftereffect=() => {}, effectDuratation=Infinity, effectDelay=0, effectPriority=0, canPickUpMultipleTimes=true) {
+    constructor(name="item", texture=Texture.null, isEdible=true, effect=() => {}, aftereffect=() => {}, effectDuratation=Infinity, effectDelay=0, effectPriority=0, canPickUpMultipleTimes=true, canHaveMultipleAtOnce=false) {
         this.name = name;
         this.texture = texture;
         this.isEdible = isEdible;
@@ -393,6 +397,7 @@ class Item {
         this.effectID = 0;
         this.inBackpack = false;
         this.canPickUpMultipleTimes = canPickUpMultipleTimes;
+        this.canHaveMultipleAtOnce = canHaveMultipleAtOnce;
     }
     get self() {
         let item = new Item(this.name, this.texture.self, this.isEdible, this.effect, this.effectDuratation);
@@ -409,6 +414,11 @@ class Item {
         this.effectID++;
         let id = NextInLine(Object.keys(player.effects));
         if (!this.canPickUpMultipleTimes && this.name in player.eaten) return;
+        if (!this.canHaveMultipleAtOnce) {
+            for (let x of Object.values(player.effects)) {
+                if (x.name == this.name) return;
+            }
+        }
         if (player.hasBackpack && !this.inBackpack) {
             let n = this.self;
             n.inBackpack = true;
