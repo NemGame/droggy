@@ -117,7 +117,7 @@ class Player {
         if (!this.hasBackpack) return;
         let twidth = this.slots * 16 + 1;
         let height = 17;
-        let pos = Vector.as((c.width - twidth) / 2, c.height - height - 5).dev(Vector.as(3, 1.25)).rounded;
+        let pos = Vector.as((c.width - twidth) / 2, c.height - height - 5).dev(Vector.as(3, 1.25)).rounded.roundToDivision(16);
         let slot = new Tile(Vector.null, textures["slot"]);
         ctx.beginPath();
         this.inventory.forEach((x, i) => {
