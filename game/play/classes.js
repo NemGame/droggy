@@ -158,7 +158,7 @@ class Player {
             }
         });
         let lineWidth = 2, lW = lineWidth / 2;
-        ctx.fillStyle = "#000000ff";
+        ctx.fillStyle = "#000000";
         ctx.fillRect(pos.add(Vector.x(this.slotSelected * 16)).x, pos.y - lW, 16, lineWidth); // top
         ctx.fillRect(pos.x, pos.y + 16 - lW, 16, lineWidth); // bottom
         ctx.fillRect(pos.x - lW, pos.y, lineWidth, 16); // left
