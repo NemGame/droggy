@@ -84,6 +84,7 @@ class Player {
         else this.isRunning = true;
     }
     automove() {
+        if (isStopped) return;
         if (this.moveDirection.isNull || this.lastDirPressed.isNull) {
             this.texture.state = 0;
             this.texture.id = 0;
@@ -115,19 +116,27 @@ class Player {
         return this.generateTiles(this.generationDistance);
     }
     scroll(n=0) {
+        if (isStopped) return;
         let newValue = this.slotSelected + n;
         if (newValue < 0) newValue = this.slots - 1;
         if (newValue > this.slots - 1) newValue = 0;
         this.slotSelected = newValue;
         return this;
     }
+    scrollTo(n=0) {
+        if (isStopped) return;
+        this.slotSelected = n;
+        this.scroll();
+    }
     useInSlot(n=this.slotSelected) {
+        if (isStopped) return;
         if (this.inventory[n]) {
             this.inventory[n].eat(false, false);
             this.inventory[n] = null;
         }
     }
     dropInSlot(n=this.slotSelected) {
+        if (isStopped) return;
         if (this.inventory[n]) {
             this.inventory[n] = null;
         }
@@ -302,7 +311,7 @@ class Texture {
         if (this.pics.length == 0) return;
         let pic = this.pics[state][id];
         // if (!pic) return console.error(`Pic not found: ${this.source} - ${state}/${id}`);
-        if (!isPlayer) pos = pos.subbed(cameraPos).add(cameraOffset).rounded;
+        if (!isPlayer) pos = pos.subbed(cameraPos).add(cameraOffset).floor;
         pos = pos.added(player.isBlurred ? 0.5 : 0)
         ctx.drawImage(
             pic,

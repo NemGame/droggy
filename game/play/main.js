@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", LateLoad);
 document.addEventListener("mousemove", (event) => {
+    if (isStopped) return;
     const b = c.getBoundingClientRect();
     mpos = Vector.as((event.clientX - b.left) * (c.width / b.width), (event.clientY - b.top) * (c.height / b.height)).rounded;
 });
@@ -250,15 +251,15 @@ keys.bindkey("ShitRight", () => {
 //#region Game mechanincs
 keys.bindkey("Space", () => { player.useInSlot(); });
 keys.bindkey("KeyQ", () => { player.dropInSlot(); });
-keys.bindkey("Digit1", () => { player.slotSelected = 0; }, "press");
-keys.bindkey("Digit2", () => { player.slotSelected = 1; }, "press");
-keys.bindkey("Digit3", () => { player.slotSelected = 2; }, "press");
-keys.bindkey("Digit4", () => { player.slotSelected = 3; }, "press");
-keys.bindkey("Digit5", () => { player.slotSelected = 4; }, "press");
-keys.bindkey("Digit6", () => { player.slotSelected = 5; }, "press");
-keys.bindkey("Digit7", () => { player.slotSelected = 6; }, "press");
-keys.bindkey("Digit8", () => { player.slotSelected = 7; }, "press");
-keys.bindkey("Digit9", () => { player.slotSelected = 8; }, "press");
+keys.bindkey("Digit1", () => { player.scrollTo(0); }, "press");
+keys.bindkey("Digit2", () => { player.scrollTo(1); }, "press");
+keys.bindkey("Digit3", () => { player.scrollTo(2); }, "press");
+keys.bindkey("Digit4", () => { player.scrollTo(3); }, "press");
+keys.bindkey("Digit5", () => { player.scrollTo(4); }, "press");
+keys.bindkey("Digit6", () => { player.scrollTo(5); }, "press");
+keys.bindkey("Digit7", () => { player.scrollTo(6); }, "press");
+keys.bindkey("Digit8", () => { player.scrollTo(7); }, "press");
+keys.bindkey("Digit9", () => { player.scrollTo(8); }, "press");
 //#endregion
 //#region UI
 keys.bindkey("F12", ToggleScreenshot, "press");
@@ -293,6 +294,8 @@ function LateLoad() {
 let f11for = 0;
 let f11peak = -1;
 
+let isStopped = false;
+
 function Update() {
     let rn = Date.now();
     deltaTime = rn - lastTime;
@@ -315,6 +318,7 @@ function Update() {
     ctx.arc(mpos.x, mpos.y, 1.6, 0, Math.PI * 2);
     ctx.stroke();
     ctx.closePath();
+
     if (IsProllyInFullscreen() && !fullscreenMode) {
         f11for++;
         if (f11for > 2) {
@@ -387,10 +391,14 @@ function ToggleScreenshot() {
     const img = document.getElementById("screenshotImage");
     if (s.style.visibility == "hidden") {
         screenshot = c.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        isStopped = true;
         img.src = screenshot;
         s.style.visibility = "visible";
     }
-    else s.style.visibility = "hidden";
+    else {
+        s.style.visibility = "hidden"
+        isStopped = false;
+    }
 }
 
 function DownloadCanvasAsImage(download=null) {
@@ -398,7 +406,7 @@ function DownloadCanvasAsImage(download=null) {
         download = screenshot;
     }
     let link = document.createElement("a");
-    link.setAttribute("download", "screenshot_" + Date.now() + ".png");
+    link.setAttribute("download", "droggy_screenshot_" + Date.now() + ".png");
     link.setAttribute("href", download != null ? download : c.toDataURL("image/png").replace("image/png", "image/octet-stream"));
     link.click();
 }
@@ -452,4 +460,10 @@ function Respawn() {
     RegenerateMapWithRandomSeed();
     Death();
     player.reset();
+}
+
+let isEscMenuOpen = false;
+const escMenuHolder = document.querySelector(".escMenuHolder");
+function ToggleEscMenu() {
+
 }

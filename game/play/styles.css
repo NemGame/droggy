@@ -53,6 +53,7 @@ canvas:not(#main) {
     height: 100%;
     align-content: center;
     visibility: hidden;
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .deathHolder {
