@@ -21,6 +21,8 @@ let res = 1/4;
 let deltaTime = 0;
 let lastTime = Date.now();
 
+let isStopped = false;
+
 /**
  * @example
  * 0 - localhost
@@ -294,16 +296,15 @@ function LateLoad() {
 let f11for = 0;
 let f11peak = -1;
 
-let isStopped = false;
-
 function Update() {
     let rn = Date.now();
     deltaTime = rn - lastTime;
     lastTime = rn;
+    UpdateIsStopped();
     if (keys.isKeyDown("AltLeft") && keys.isKeyDown("F4")) ToggleFullscreen(false);
     ReloadCanvas();
 
-    if (player.isalive) {
+    if (player.isalive && !isStopped) {
         player.automove();
         player.updateEffects();
     }
@@ -411,9 +412,11 @@ function DownloadCanvasAsImage(download=null) {
     link.click();
 }
 
+const sholder = document.querySelector(".screenshotholder");
 function EscapeFunction() {
-    const sholder = document.querySelector(".screenshotholder");
-    if (getComputedStyle(sholder).visibility == "visible") ToggleScreenshot();
+    if (getComputedStyle(escMenuHolder).visibility == "visible") ToggleEscMenu();
+    else if (getComputedStyle(sholder).visibility == "visible") ToggleScreenshot();
+    else ToggleEscMenu();
 }
 
 function IsProllyInFullscreen() {
@@ -446,13 +449,13 @@ function Zoom(n=1) {
     cameraOffset.mult(n);
 }
 
+const dholder = document.querySelector(".deathHolder");
 function Death() {
-    const holder = document.querySelector(".deathHolder");
-    if (holder.style.visibility == "hidden") {
+    if (dholder.style.visibility == "hidden") {
         document.getElementById("deathCount").textContent = player.totalStuffEaten;
-        holder.style.visibility = "visible";
+        dholder.style.visibility = "visible";
     } else {
-        holder.style.visibility = "hidden";
+        dholder.style.visibility = "hidden";
     }
 }
 
@@ -465,5 +468,15 @@ function Respawn() {
 let isEscMenuOpen = false;
 const escMenuHolder = document.querySelector(".escMenuHolder");
 function ToggleEscMenu() {
+    if (getComputedStyle(escMenuHolder).visibility == "hidden") {
+        escMenuHolder.style.visibility = "visible";
+    } else {
+        escMenuHolder.style.visibility = "hidden";
+    }
+}
 
+function UpdateIsStopped() {
+    isStopped = getComputedStyle(escMenuHolder).visibility == "visible" ||
+                getComputedStyle(sholder).visibility == "visible" ||
+                getComputedStyle(dholder).visibility == "visible";
 }

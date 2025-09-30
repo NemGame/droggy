@@ -45,7 +45,7 @@ canvas:not(#main) {
     background-color: #888;
 }
 
-.screenshotholder, .deathHolder {
+.screenshotholder, .deathHolder, .escMenuHolder {
     position: fixed;
     top: 0;
     left: 0;
@@ -141,3 +141,33 @@ load {
 .death h1 {
     text-align: center;
 }
+
+.escMenu {
+    width: fit-content;
+    background-color: #141414;
+    margin: auto;
+    border-radius: 15px;
+    height: fit-content;
+    padding: 5px 100px 20px;
+    text-align: center;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+}
+
+.escMenu button {
+    background-color: #555;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 7.5px 20px;
+    font-size: 90%;
+    width: fit-content;
+    cursor: pointer;
+    transition: background-color 0.0625s ease;
+}
+
+.escMenu button:hover { background-color: #777; }
+.escMenu button:active { background-color: #333; }

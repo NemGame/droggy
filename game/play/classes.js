@@ -74,8 +74,10 @@ class Player {
         }
     }
     autoHealthDecrease() {
-        this.hp -= this.healthDecreaseRate * deltaTime;
-        if (this.hp > 100) this.hp = 100;
+        if (!isStopped) {
+            this.hp -= this.healthDecreaseRate * deltaTime;
+            if (this.hp > 100) this.hp = 100;
+        }
         requestAnimationFrame(this.autoHealthDecrease.bind(this));
     }
     toggleRunning(bool=null) {
@@ -157,9 +159,9 @@ class Player {
         });
         let lineWidth = 2, lW = lineWidth / 2;
         ctx.fillStyle = "#000000ff";
-        ctx.fillRect(pos.add(Vector.x(this.slotSelected * 16)).x + lW, pos.y - lW, 16 - lW, lineWidth); // top
-        ctx.fillRect(pos.x + lW, pos.y + 16 - lW, 16 - lW, lineWidth); // bottom
-        ctx.fillRect(pos.x, pos.y, lineWidth, 16 - lW); // left
+        ctx.fillRect(pos.add(Vector.x(this.slotSelected * 16)).x, pos.y - lW, 16, lineWidth); // top
+        ctx.fillRect(pos.x, pos.y + 16 - lW, 16, lineWidth); // bottom
+        ctx.fillRect(pos.x - lW, pos.y, lineWidth, 16); // left
         ctx.fillRect(pos.x + 16 - lW, pos.y, lineWidth, 16); // right
         ctx.strokeStyle = "white";
     }
