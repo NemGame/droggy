@@ -1,10 +1,11 @@
 document.addEventListener("DOMContentLoaded", LateLoad);
 document.addEventListener("mousemove", (event) => {
     const b = c.getBoundingClientRect();
-    mpos = Vector.as((event.clientX - b.left) * (c.width / b.width), (event.clientY - b.top) * (c.height / b.height)).dev(Vector.as(Math.PI / 1.96, Math.PI / 2.5)).rounded;
+    mpos = Vector.as((event.clientX - b.left) * (c.width / b.width), (event.clientY - b.top) * (c.height / b.height)).rounded;
 });
-document.addEventListener("fullscreenchange", (e) => {
-    console.log(e)
+document.addEventListener("wheel", (e) => {
+    if (e.deltaY > 0) player.scroll(1);
+    else player.scroll(-1);
 });
 
 let mpos = Vector.null;
@@ -188,6 +189,7 @@ function DrawAllTiles() {
 
 //#region Key mapping
 //#region Movement
+
 keys.bindkey("KeyW", () => {
     player.moveDirection.y += -1;
     player.lastDirPressed = Vector.up;
@@ -245,6 +247,19 @@ keys.bindkey("ShitRight", () => {
 }, "up");
 
 //#endregion
+//#region Game mechanincs
+keys.bindkey("Space", () => { player.useInSlot(); });
+keys.bindkey("KeyQ", () => { player.dropInSlot(); });
+keys.bindkey("Digit1", () => { player.slotSelected = 0; }, "press");
+keys.bindkey("Digit2", () => { player.slotSelected = 1; }, "press");
+keys.bindkey("Digit3", () => { player.slotSelected = 2; }, "press");
+keys.bindkey("Digit4", () => { player.slotSelected = 3; }, "press");
+keys.bindkey("Digit5", () => { player.slotSelected = 4; }, "press");
+keys.bindkey("Digit6", () => { player.slotSelected = 5; }, "press");
+keys.bindkey("Digit7", () => { player.slotSelected = 6; }, "press");
+keys.bindkey("Digit8", () => { player.slotSelected = 7; }, "press");
+keys.bindkey("Digit9", () => { player.slotSelected = 8; }, "press");
+//#endregion
 //#region UI
 keys.bindkey("F12", ToggleScreenshot, "press");
 keys.bindkey("KeyX", ToggleScreenshot, "press");
@@ -263,6 +278,15 @@ function LateLoad() {
     Update();
 
     items["fuck"].eat(false, false);
+    player.addToInventory(items["fuck"])
+    player.addToInventory(items["fuck"])
+    player.addToInventory(items["fuck"])
+    player.addToInventory(items["fuck"])
+    player.addToInventory(items["fuck"])
+    player.addToInventory(items["fuck"])
+    player.addToInventory(items["fuck"])
+    player.addToInventory(items["fuck"])
+    player.addToInventory(items["fuck"])
     player.addToInventory(items["fuck"])
 }
 

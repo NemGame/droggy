@@ -28,6 +28,7 @@ class Player {
         this.totalStuffEaten = 0;
         this.hasBackpack = true;
         this.slots = 9;
+        this.slotSelected = 0;
         this.inventory = Array.from({ length: this.slots }).fill(null);
         this.isBlurred = false;
         this.isalive = true;
@@ -113,20 +114,45 @@ class Player {
     autoGenerateTiles() {
         return this.generateTiles(this.generationDistance);
     }
+    scroll(n=0) {
+        let newValue = this.slotSelected + n;
+        if (newValue < 0) newValue = this.slots - 1;
+        if (newValue > this.slots - 1) newValue = 0;
+        this.slotSelected = newValue;
+        return this;
+    }
+    useInSlot(n=this.slotSelected) {
+        if (this.inventory[n]) {
+            this.inventory[n].eat(false, false);
+            this.inventory[n] = null;
+        }
+    }
+    dropInSlot(n=this.slotSelected) {
+        if (this.inventory[n]) {
+            this.inventory[n] = null;
+        }
+    }
     drawHotbar() {
         if (!this.hasBackpack) return;
-        let twidth = this.slots * 16 + 1;
-        let height = 17;
-        let pos = Vector.as((c.width - twidth) / 2, c.height - height - 5).dev(Vector.as(3, 1.25)).rounded.roundToDivision(16);
-        let slot = new Tile(Vector.null, textures["slot"]);
-        ctx.beginPath();
+        let pos = Vector.as(c.width / 2 - this.slots / 2 * 16, c.height - 24);
         this.inventory.forEach((x, i) => {
-            let y = slot.self;
-            y.pos = pos.added(Vector.as(i * 16, 0)).floor;
-            y.heldItem = x;
-            y.draw(true, false);
+            let ipos = pos.added(Vector.x(i * 16)).int;
+            textures["slot"].drawCurrentAt(ipos, true);
+            if (x != null) x.draw(ipos, true);
+            if (i == this.slotSelected) {
+                ctx.beginPath();
+                ctx.strokeStyle = "black";
+                // ctx.rect(ipos.x, ipos.y, 16, 16);
+                ctx.stroke();
+            }
         });
-        ctx.closePath();
+        let lineWidth = 2, lW = lineWidth / 2;
+        ctx.fillStyle = "#000000ff";
+        ctx.fillRect(pos.add(Vector.x(this.slotSelected * 16)).x + lW, pos.y - lW, 16 - lW, lineWidth); // top
+        ctx.fillRect(pos.x + lW, pos.y + 16 - lW, 16 - lW, lineWidth); // bottom
+        ctx.fillRect(pos.x, pos.y, lineWidth, 16 - lW); // left
+        ctx.fillRect(pos.x + 16 - lW, pos.y, lineWidth, 16); // right
+        ctx.strokeStyle = "white";
     }
     drawHP(smoothen=false) {
         let height = 10, width = 100;
@@ -140,6 +166,7 @@ class Player {
         ctx.fillStyle = "black";
         ctx.scale(1.6, 1.25);
         ctx.fillText(this.totalStuffEaten, textPos.x, textPos.y);
+        ctx.scale(1/1.6, 1/1.25);
     }
     draw() {
         ctx.strokeStyle = this.color;
