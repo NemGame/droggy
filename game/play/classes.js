@@ -134,6 +134,7 @@ class Player {
         if (isStopped) return;
         if (this.inventory[n]) {
             this.inventory[n].eat(false, false);
+            console.log("Used inventory item: " + this.inventory[n].name)
             this.inventory[n] = null;
         }
     }
@@ -426,7 +427,7 @@ class Tile {
 }
 
 class Item {
-    constructor(name="item", texture=Texture.null, isEdible=true, effect=() => {}, aftereffect=() => {}, effectDuratation=Infinity, effectDelay=0, effectPriority=0, canPickUpMultipleTimes=true, canMerge=true) {
+    constructor(name="item", texture=Texture.null, isEdible=true, effect=() => {}, aftereffect=() => {}, effectDuratation=Infinity, effectDelay=0, effectPriority=0) {
         this.name = name;
         this.texture = texture;
         this.isEdible = isEdible;
@@ -437,11 +438,9 @@ class Item {
         this.effectPriority = effectPriority;
         this.effectID = 0;
         this.inBackpack = false;
-        this.canPickUpMultipleTimes = canPickUpMultipleTimes;
-        this.canMerge = canMerge;
     }
     get self() {
-        let item = new Item(this.name, this.texture.self, this.isEdible, this.effect, this.effectDuratation);
+        let item = new Item(this.name, this.texture.self, this.isEdible, this.effect, this.aftereffect, this.effectDuratation, this.effectDelay, this.effectPriority);
         item.effectID = this.effectID;
         return item;
     }
