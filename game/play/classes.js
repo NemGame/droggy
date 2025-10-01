@@ -32,6 +32,7 @@ class Player {
         this.inventory = Array.from({ length: this.slots }).fill(null);
         this.isBlurred = false;
         this.isalive = true;
+        this.effectsToCall = {};
     }
     reset() {
         this.hp = 100;
@@ -39,7 +40,8 @@ class Player {
         this.isBlurred = false;
         this.hasBackpack = false;
         this.totalStuffEaten = 0;
-        this.effects = {};
+        Object.keys(this.effects).forEach(x => delete this.effects[x]);
+        Object.keys(this.effectsToCall).forEach(x => delete this.effectsToCall[x]);
         this.canRun = true;
         this.canEat = true;
         this.coins = 0;
@@ -65,8 +67,10 @@ class Player {
             });
         }
         this.updateReset();
-        let sorted = Object.values(this.effects).sort((a, b) => a.priority - b.priority);
-        sorted.forEach(x => x.func());
+        let sorted = [];
+        Object.values(this.effectsToCall).forEach(lst => sorted.push(...lst));
+        sorted.forEach(x => x());
+        Object.keys(this.effectsToCall).forEach(x => delete this.effectsToCall[x]);
         c.style.imageRendering = this.isBlurred ? "auto" : "pixelated";
         if (this.hp < 1) {
             Death();
@@ -420,7 +424,8 @@ class Tile {
     }
     use() {
         if (this.heldItem != null) {
-            this.heldItem.eat();
+            this.heldItem.eat(false, true);
+            console.log(`Ate ${this.heldItem.name} from the ground...`)
             this.heldItem = null;
         }
     }
@@ -455,11 +460,13 @@ class Item {
             }
         }
         this.startEffect();
+        player.totalStuffEaten++;
+        player.eaten.add(this.name);
         return this;
     }
     startEffect() {
         if (this.name in player.effects) player.effects[this.name].extendEffect(this.effectDuratation);
-        else player.effects[this.name] = new Effect(this.name, this.effectDuratation, this.effectPriority, this.effect, this.aftereffect);
+        else player.effects[this.name] = new Effect(this.name, this.effectDuratation, this.effectPriority, this.effect, this.aftereffect, this.effectDelay);
     }
     draw(pos=Vector.null, isPlayer=false) {
         this.texture.drawAt(pos, undefined, undefined, isPlayer);
@@ -497,7 +504,7 @@ class Structure {
         return new Structure();
     }
     canSpawnAt(pos=Vector.null) {
-        if (player.pos.distanceTo(pos) <= 25) return false;
+        if (pos.distanceTo(Vector.null) <= 3 || player.pos.distanceTo(pos) <= 25) return false;
         let seed = (pos.x * 1234567 + pos.y * (randomth(this.id) * (9e8 - 1e8) + 1e8)) % 2147483647;
         let r = randomSeed.seedRandom(seed)();
         return r < this.rarity;
@@ -512,20 +519,32 @@ class Structure {
 }
 
 class Effect {
-    constructor(name="", miliseconds=0, priority=0, func=()=>{}, aftereffect=()=>{}) {
+    constructor(name="", miliseconds=0, priority=0, func=()=>{}, aftereffect=()=>{}, delay=0) {
         this.name = name;
         this.miliseconds = miliseconds;
         this.priority = priority;
         this.func = func;
         this.aftereffect = aftereffect;
+        this.delay = delay;
         this.startTime = Date.now();
         this.effectReference = player.effects;
-        console.log(`Effect: ${name} added with duration: ${miliseconds}`);
+        this.effectCallReference = player.effectsToCall;
+        console.log(`Effect: ${name} added with duration: ${miliseconds} with delay: ${delay}`);
+        this.callUpdate();
+    }
+    callUpdate() {
         requestAnimationFrame(this.update.bind(this));
+        return this;
     }
     update() {
-        let timePassed = Date.now() - this.startTime;
+        if (!player.isalive) return;
+        let timePassed = Date.now() - this.startTime - this.delay;
+        if (timePassed < 0) {
+            console.log("waitin'");
+            return this.callUpdate();
+        }
         if (timePassed >= this.miliseconds) {
+            console.log(this);
             if (!(this.name in this.effectReference)) console.warn("Tried removing effect that was not there: " + this.name + " ; keys are: " + Object.keys(this.effectReference));
             else {
                 this.aftereffect();
@@ -534,8 +553,11 @@ class Effect {
             }
             return;
         }
-        else this.func();
-        requestAnimationFrame(this.update.bind(this));
+        else {
+            this.effectCallReference[this.priority] ??= [];
+            this.effectCallReference[this.priority].push(this.func);
+        }
+        this.callUpdate();
     }
     extendEffect(miliseconds) {
         console.log(`Effect '${this.name}' extended by ${miliseconds}ms ; ${this.miliseconds} -> ${this.miliseconds + miliseconds} ; Time left: ${(this.miliseconds + miliseconds) - (Date.now() - this.startTime)}`);

@@ -67,7 +67,7 @@ const items = {
     "sign": new Item("Sign", textures["sign"], true, () => { player.isBlurred = true; }, ()=>{ player.isBlurred = false; }, 3000, 0, 0),
     "drug": new Item("Drug", textures["drug"], true, () => { player.canWalkDiagonally = true; }, ()=>{ player.canWalkDiagonally = false; }, 30000, 5000, 0),
     "grass": new Item("Grass", textures["grass"], true, () => { player.runningMult = 3; player.speed = 3; }, ()=>{ player.hp = 0; }, 10000, 10000, 0, false),
-    "fuck": new Item("Fuck", textures["fuck"], true, () => { player.hp = 100; player.canEat = true; }, ()=>{}, Infinity, 0, 2, false),
+    "fuck": new Item("Fuck", textures["fuck"], true, () => { player.hp = 100; player.canEat = true; player.isBlurred = false; }, ()=>{}, Infinity, 0, 2, false),
 };
 const rareTiles = {
     "undefined": Structure.null,
@@ -251,7 +251,8 @@ keys.bindkey("ShitRight", () => {
 
 //#endregion
 //#region Game mechanincs
-keys.bindkey("Space", () => { player.useInSlot(); });
+keys.bindkey("Space", SpaceFunction);
+keys.bindkey("Space", SpaceOtherFunction, "press");
 keys.bindkey("KeyQ", () => { player.dropInSlot(); });
 keys.bindkey("Digit1", () => { player.scrollTo(0); }, "press");
 keys.bindkey("Digit2", () => { player.scrollTo(1); }, "press");
@@ -411,6 +412,15 @@ function EscapeFunction() {
     else ToggleEscMenu();
 }
 
+function SpaceFunction() {
+    if (player.isalive && !isStopped) player.useInSlot();
+}
+function SpaceOtherFunction() {
+    if (player.isalive && !isStopped) return;
+    if (getComputedStyle(escMenuHolder).visibility == "visible") ToggleEscMenu();
+    else if (isStopped) Respawn();
+}
+
 function IsProllyInFullscreen() {
     return screen.height <= window.innerHeight;
 }
@@ -421,7 +431,7 @@ function IsProllyInFullscreen() {
  * @param {Item} item the item
  */
 function SpawnItemAt(pos=Vector.null, item=Item.null, override=false) {
-    let tile = TileAt(pos.multed(16).rounded);
+    let tile = TileAt(pos.placeInGrid(16).mult(16).rounded);
     if (tile == null) {
         console.warn(`No tile in position '${pos}', thus adding an item to it failed`);
         return 1;
