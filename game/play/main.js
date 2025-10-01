@@ -129,11 +129,11 @@ function TileAt(pos=Vector.null) {
     return tiles[pos.y][pos.x];
 }
 
-function GenerateNeighbourTiles(pos=Vector.null, size=16, texture=Texture.null, dist=Vector.null) {
+function GenerateNeighbourTiles(pos=Vector.null, size=16, dist=Vector.null) {
     let newTiles = [];
     for (let i = -dist.x; i < dist.x + 1; i++) {
         for (let y = -dist.y; y < dist.y + 1; y++) {
-            let apos = pos.added(Vector.as(i * size, y * size)).rounded;
+            let apos = pos.added(Vector.as(i * size, y * size)).ceil;
             if (DoesTileExist(apos) || !apos.isDivisibleBy(size)) continue;
             let type = TypeOfTileAt(apos);
             tiles[apos.y] ??= {};
@@ -341,7 +341,7 @@ function ReloadCanvas() {
     let padding = 0.3;
     c.style.width = c.width * (z - padding) + "px";
     c.style.height = c.height * (z - padding) + "px";
-    ctx.fillStyle = "#333";
+    ctx.fillStyle = "rgb(109, 69, 62)";
     ctx.fillRect(0, 0, c.width, c.height);
 }
 

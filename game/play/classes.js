@@ -115,7 +115,7 @@ class Player {
         return this;
     }
     generateTiles(n=this.renderDistance) {
-        GenerateNeighbourTiles(this.pos.placeInGrid(16).multed(16), 16, textures["ground"], n);
+        GenerateNeighbourTiles(this.pos.placeInGrid(16).multed(16), 16, n);
         return this;
     }
     autoGenerateTiles() {
