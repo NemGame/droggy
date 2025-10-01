@@ -83,9 +83,6 @@ const rareTiles = {
     "drug": new Structure("Drug", [
         new Tile(Vector.null, textures["shop"], items["drug"])
     ], 0.0005, false),
-    "fuck": new Structure("Fuck", [
-        new Tile(Vector.null, textures["shop"], items["fuck"])
-    ], 0.000005, false),
     "brick": new Structure("Brick", [
         new Tile(Vector.null, textures["ground"], items["brick"])
     ], 0.001, false),
@@ -104,6 +101,9 @@ const rareTiles = {
     "grass": new Structure("Grass", [
         new Tile(Vector.null, textures["ground"], items["grass"])
     ], 0.0005, false),
+    "fuck": new Structure("Fuck", [
+        new Tile(Vector.null, textures["shop"], items["fuck"])
+    ], 0.000005, false),
 }
 Object.values(rareTiles).forEach((x, i) => x.id = i);
 let tiles = {};
@@ -171,8 +171,10 @@ function RemoveAllTiles() {
 function DrawShownTiles() {
     // let pos = player.pos.placeInGrid(16).mult(16);
     let pos = cameraPos.placeInGrid(16).mult(16);
+    /*
     ctx.rect(pos.x - player.renderDistance.x * 16 - cameraPos.x + cameraOffset.x, pos.y - player.renderDistance.y * 16 - cameraPos.y + cameraOffset.y, 
             (player.renderDistance.x + 0.5) * 32, (player.renderDistance.y + 0.5) * 32);
+    */
     for (let i = -player.renderDistance.y; i < player.renderDistance.y + 1; i++) {
         for (let y = -player.renderDistance.x; y < player.renderDistance.x + 1; y++) {
             if (tiles[pos.y + (i * 16)] === undefined || tiles[pos.y + (i * 16)][pos.x + (y * 16)] === undefined) continue;
@@ -275,8 +277,6 @@ function LateLoad() {
     ToggleScreenshot();
     keys.lockAllKeys();
     LoadCanvas();
-
-    SpawnItemAt(Vector.null, items["brokkoli"])
 
     Update();
 }

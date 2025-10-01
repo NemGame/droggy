@@ -10,7 +10,7 @@ class Player {
         this.moveDirection = Vector.null;
         this.canWalkDiagonally = false;
         this.lastDirPressed = Vector.null;
-        let screen = canvasSize.deved(2).ceil.add(1)
+        let screen = canvasSize.deved(2).ceil;
         this.generationDistance = screen;
         this.renderDistance = screen.self;
         this.isRunning = false;
@@ -425,7 +425,6 @@ class Tile {
     use() {
         if (this.heldItem != null) {
             this.heldItem.eat(false, true);
-            console.log(`Ate ${this.heldItem.name} from the ground...`)
             this.heldItem = null;
         }
     }
@@ -504,7 +503,7 @@ class Structure {
         return new Structure();
     }
     canSpawnAt(pos=Vector.null) {
-        if (pos.distanceTo(Vector.null) <= 3 || player.pos.distanceTo(pos) <= 25) return false;
+        if (player.hasBackpack || player.pos.distanceTo(pos) <= 25) return false;
         let seed = (pos.x * 1234567 + pos.y * (randomth(this.id) * (9e8 - 1e8) + 1e8)) % 2147483647;
         let r = randomSeed.seedRandom(seed)();
         return r < this.rarity;
