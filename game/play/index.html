@@ -18,6 +18,18 @@
         <iframe src="../navbar/index.html" frameborder="0"></iframe>
         <button id="fullscreen" onclick="ToggleFullscreen()"><img src="imgs/fullscreen.png" alt="Fullscreen" width="32px" height="32px"></button>
         <canvas id="main"></canvas>
+        <div class="deathHolder">
+            <div class="death">
+                <h1 text="death"></h1>
+                <h2>
+                    <span text="eaten"></span><span id="deathCount">-69</span>
+                </h2>
+                <div class="btns">
+                    <button text="back" class="scclose" onclick="window.open('../', '_self')"></button>
+                    <button text="respawn" class="scdownload" onclick="Respawn()"></button>
+                </div>
+            </div>
+        </div>
         <div class="screenshotholder">
             <div class="screenshot">
                 <div id="btns">
@@ -25,24 +37,12 @@
                     <button class="scdownload" text="download" onclick="DownloadCanvasAsImage(Infinity)">download</button>
                 </div>
                 <div id="stop">
-                    <img src="imgs/2.png" alt="screenshot" id="screenshotImage" width="0" height="0">
+                    <img src="imgs/none.png" alt="screenshot" id="screenshotImage" width="0" height="0">
                 </div>
                 <div class="title">
                     <h2 text="screenshot">
                         screenshot
                     </h2>
-                </div>
-            </div>
-        </div>
-        <div class="deathHolder">
-            <div class="death">
-                <h1 text="death"></h1>
-                <h3>
-                    <span text="eaten"></span><span id="deathCount">-69</span>
-                </h3>
-                <div class="btns">
-                    <button text="back" class="scclose" onclick="window.open('../', '_self')"></button>
-                    <button text="respawn" class="scdownload" onclick="Respawn()"></button>
                 </div>
             </div>
         </div>

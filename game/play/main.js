@@ -94,7 +94,7 @@ const rareTiles = {
     ], 0.001, false),
     "backpack": new Structure("Backpack", [
         new Tile(Vector.null, textures["ground"], items["backpack"])
-    ], 0.0001, false),
+    ], 0.0001, false, () => { return !player.hasBackpack; }),
     "sign": new Structure("Sign", [
         new Tile(Vector.null, textures["ground"], items["sign"])
     ], 0.0001, false),
@@ -382,6 +382,8 @@ function ToggleScreenshot(scf=null) {
     if (s.style.visibility == "hidden") {
         screenshot = c.toDataURL("image/png").replace("image/png", "image/octet-stream");
         isStopped = true;
+        img.width = c.width;
+        img.height = c.height;
         img.src = screenshot;
         s.style.visibility = "visible";
     }

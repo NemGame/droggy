@@ -37,6 +37,7 @@ class Player {
     reset() {
         this.hp = 100;
         this.inventory = Array.from({ length: this.slots }).fill(null);
+        this.pos.setv(Vector.null);
         this.isBlurred = false;
         this.hasBackpack = false;
         this.totalStuffEaten = 0;
@@ -48,6 +49,8 @@ class Player {
         this.eaten = new Set();
         this.isRunning = false;
         this.isalive = true;
+        tiles = {};
+        this.autoGenerateTiles();
     }
     updateReset() {
         this.healthDecreaseRate = this.baseHealthDecreaseRate;
@@ -492,18 +495,19 @@ class Structure {
      * @param {TilePos[]} tiles tiles
      * @param {Boolean} afterGeneration if it has structures
      */
-    constructor(name="Structure", tiles=[], rarity=0.05, afterGeneration=false) {
+    constructor(name="Structure", tiles=[], rarity=0.05, afterGeneration=false, canSpawn=()=>{ return true; }) {
         this.name = name;
         this.tiles = tiles;
         this.rarity = rarity;
         this.afterGeneration = afterGeneration;
+        this.canSpawn = canSpawn;
         this.id = 2;
     }
     static get null() {
         return new Structure();
     }
     canSpawnAt(pos=Vector.null) {
-        if (player.hasBackpack || player.pos.distanceTo(pos) <= 25) return false;
+        if (!this.canSpawn() || player.pos.distanceTo(pos) <= 25) return false;
         let seed = (pos.x * 1234567 + pos.y * (randomth(this.id) * (9e8 - 1e8) + 1e8)) % 2147483647;
         let r = randomSeed.seedRandom(seed)();
         return r < this.rarity;
