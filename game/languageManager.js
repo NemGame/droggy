@@ -20,6 +20,15 @@ class LanguageManager {
         listensToLanguageChange.forEach(x => x());
         return 0;
     }
+    static get(text="") {
+        let lang = langs[currentLanguage];
+        if (lang == undefined) return;
+        if (text in lang) return lang[text];
+        else {
+            console.error(`'${text}' not found in '${currentLanguage}'`);
+            return text;
+        }
+    }
     static load() {
         currentLanguage = localStorage.getItem("currentLanguage") || "hu";
         LanguageManager.setLang(currentLanguage);

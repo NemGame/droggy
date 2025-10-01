@@ -46,7 +46,6 @@ class Player {
         this.canRun = true;
         this.canEat = true;
         this.coins = 0;
-        this.eaten = new Set();
         this.isRunning = false;
         this.isalive = true;
         tiles = {};
@@ -141,7 +140,6 @@ class Player {
         if (isStopped) return;
         if (this.inventory[n]) {
             this.inventory[n].eat(false, false);
-            console.log("Used inventory item: " + this.inventory[n].name)
             this.inventory[n] = null;
         }
     }
@@ -174,6 +172,7 @@ class Player {
         ctx.strokeStyle = "white";
     }
     drawHP(smoothen=false) {
+        ctx.fillStyle = "#6c0000";
         let height = 10, width = 100;
         let pos = Vector.as(c.width + width - canvasSize.x * 16, c.height - height - canvasSize.y * 8).dev(canvasSize).rounded.add(0.5);
         ctx.rect(pos.x, pos.y, width, height);
@@ -208,6 +207,9 @@ class Player {
             }
         }
         return 1;
+    }
+    eatAll() {
+        Object.values(items).forEach(x => x?.eat());
     }
 }
 
@@ -464,6 +466,7 @@ class Item {
         this.startEffect();
         player.totalStuffEaten++;
         player.eaten.add(this.name);
+        LoadItems();
         return this;
     }
     startEffect() {

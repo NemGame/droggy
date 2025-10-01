@@ -34,7 +34,7 @@ let imagesLoaded = {};
 
 const textures = {
     "2.png": new Texture("2.png"),
-    "fella_animation_test.png": new Texture("fella_animation_test.png", ["2.png"]),
+    "fella_animation_test.png": new Texture("fella_animation_test.png"),
     "test": new Texture("2state_3id_base.png"),
     "ground": new Texture("og_padlo.png"),
     "chest": new Texture("chest.png"),
@@ -277,6 +277,7 @@ function LateLoad() {
     ToggleScreenshot();
     keys.lockAllKeys();
     LoadCanvas();
+    LoadItems();
 
     Update();
 }
@@ -375,11 +376,11 @@ function ToggleFullscreen(bool=69) {
 
 let screenshot = "";
 let screenshotFrom = null;
-function ToggleScreenshot(scf=null) {
+function ToggleScreenshot(scf=null, fopen=false) {
     if (scf != null) screenshotFrom = scf;
     const s = document.querySelector(".screenshotholder");
     const img = document.getElementById("screenshotImage");
-    if (s.style.visibility == "hidden") {
+    if (s.style.visibility == "hidden" || fopen) {
         screenshot = c.toDataURL("image/png").replace("image/png", "image/octet-stream");
         isStopped = true;
         img.width = c.width;
@@ -410,6 +411,7 @@ function DownloadCanvasAsImage(download=null) {
 const sholder = document.querySelector(".screenshotholder");
 function EscapeFunction() {
     if (getComputedStyle(escMenuHolder).visibility == "visible") ToggleEscMenu();
+    else if (getComputedStyle(dpHolder).visibility == "visible") ToggleDroggopedia();
     else if (getComputedStyle(sholder).visibility == "visible") ToggleScreenshot();
     else ToggleEscMenu();
 }
@@ -463,9 +465,9 @@ function Death() {
     }
 }
 
-function Respawn() {
+function Respawn(force=true) {
     RegenerateMapWithRandomSeed();
-    Death();
+    if (force) Death();
     player.reset();
 }
 
@@ -482,5 +484,42 @@ function ToggleEscMenu() {
 function UpdateIsStopped() {
     isStopped = getComputedStyle(escMenuHolder).visibility == "visible" ||
                 getComputedStyle(sholder).visibility == "visible" ||
-                getComputedStyle(dholder).visibility == "visible";
+                getComputedStyle(dholder).visibility == "visible" ||
+                getComputedStyle(dpHolder).visibility == "visible";
+}
+
+const dpHolder = document.querySelector(".droggopediaHolder");
+let dpFrom = null;
+function ToggleDroggopedia(dp=null) {
+    if (dp != null) dpFrom = dp;
+    if (getComputedStyle(dpHolder).visibility == "hidden") {
+        dpHolder.style.visibility = "visible";
+    } else {
+        dpHolder.style.visibility = "hidden";
+        if (dpFrom != null) {
+            dpFrom.style.visibility = "visible";
+            dpFrom = null;
+        }
+    }
+}
+
+function LoadItems() {
+    const place = document.querySelector("body > div.droggopediaHolder > div > div.items");
+    place.innerHTML = "";
+    Object.values(items).forEach(x => {
+        if (!x || !player.eaten.has(x.name)) return;
+        let div = document.createElement("div");
+        console.log(x);
+        div.innerHTML = `<h2><img src="./imgs/${x.texture.source}"><span text="${x.name}Item"></span></h2><p text="${x.name}"></p>`;
+        div.className = "item";
+        place.appendChild(div);
+    });
+    LanguageManager.reloadLanguage();
+}
+
+function FullRestart() {
+    Respawn(false);
+    player.eaten.clear();
+    LoadItems();
+    escMenuHolder.style.visibility = "hidden";
 }
