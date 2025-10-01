@@ -448,17 +448,6 @@ class Item {
     eat(log=true, inv=true) {
         if (!this.isEdible) return;
         if (log) console.log("Food ate: " + this.name);
-        this.startTimer(this.effectID, log, inv);
-        return this;
-    }
-    startTimer(eid=this.effectID, log=true, inv=true) {
-        let id = NextInLine(Object.keys(player.effects));
-        if (!this.canPickUpMultipleTimes && this.name in player.eaten) return;
-        if (!this.canMerge) {
-            for (let x of Object.values(player.effects)) {
-                if (x.name == this.name) return;
-            }
-        }
         if (player.hasBackpack && !this.inBackpack && inv) {
             let n = this.self;
             n.inBackpack = true;
@@ -466,32 +455,12 @@ class Item {
                 return 0;
             }
         }
-        setTimeout(() => {
-            if (eid != this.effectID) {
-                if (log) console.log(`-> Didn't eat ${this.name} with eid ${eid}, effectID is ${this.effectID}`);
-            }
-            player.effects[id] = new Effect(this.name, this.effectPriority, this.effect);
-            player.eaten.add(this.name);
-            player.totalStuffEaten++;
-            if (log) console.log(`${this.name} added with id ${eid}`);
-            this.effectID++;
-        }, this.effectDelay);
-        if (this.effectDuratation != Infinity) {
-            this.stopTimer(id);
-        }
+        this.startEffect();
+        return this;
     }
-    timer(id=this.effectID) {
-        if (id != this.effectID) return;
-
-        this.effect();
-
-        requestAnimationFrame(() => { this.timer(id); });
-    }
-    stopTimer(id=0) {
-        setTimeout(() => {
-            delete player.effects[id];
-            this.aftereffect();
-        }, this.effectDelay + this.effectDuratation);
+    startEffect() {
+        if (this.name in player.effects) player.effects[this.name].extendEffect(this.effectDuratation);
+        else player.effects[this.name] = new Effect(this.name, this.effectDuratation, this.effectPriority, this.effect, this.aftereffect);
     }
     draw(pos=Vector.null, isPlayer=false) {
         this.texture.drawAt(pos, undefined, undefined, isPlayer);
@@ -544,19 +513,33 @@ class Structure {
 }
 
 class Effect {
-    constructor(name="", priority=0, func=()=>{}) {
+    constructor(name="", miliseconds=0, priority=0, func=()=>{}, aftereffect=()=>{}) {
         this.name = name;
+        this.miliseconds = miliseconds;
         this.priority = priority;
         this.func = func;
+        this.aftereffect = aftereffect;
+        this.startTime = Date.now();
+        this.effectReference = player.effects;
+        console.log(`Effect: ${name} added with duration: ${miliseconds}`);
+        requestAnimationFrame(this.update.bind(this));
     }
-}
-
-function NextInLine(array) {
-    array = [...array].sort((a, b) => a - b);
-    let prev = -1;
-    for (let x of array) {
-        if (x - prev != 1) return prev + 1;
-        prev = x;
+    update() {
+        let timePassed = Date.now() - this.startTime;
+        if (timePassed >= this.miliseconds) {
+            if (!(this.name in this.effectReference)) console.warn("Tried removing effect that was not there: " + this.name + " ; keys are: " + Object.keys(this.effectReference));
+            else {
+                this.aftereffect();
+                console.log(`Effect: '${this.name}' removed, it was active for ${timePassed}ms ; target was: ${this.miliseconds}`)
+                delete this.effectReference[this.name];
+            }
+            return;
+        }
+        else this.func();
+        requestAnimationFrame(this.update.bind(this));
     }
-    return array.length;
+    extendEffect(miliseconds) {
+        console.log(`Effect '${this.name}' extended by ${miliseconds}ms ; ${this.miliseconds} -> ${this.miliseconds + miliseconds} ; Time left: ${(this.miliseconds + miliseconds) - (Date.now() - this.startTime)}`);
+        this.miliseconds += miliseconds;
+    }
 }
