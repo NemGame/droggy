@@ -58,11 +58,11 @@ const player = new Player(canvasSize.deved(2).floor.mult(16), 16, 1, textures["f
 const items = {
     "undefined": Item.null,
     "brokkoli": new Item("Brokkoli", textures["brokkoli"], true, () => { player.healthDecreaseRate = 0.05; }, ()=>{}, 5000, 0),
-    "apple": new Item("Apple", textures["apple"], true, () => { player.healthDecreaseRate = -10; }, ()=>{}, 5000, 0, 1),
+    "apple": new Item("Apple", textures["apple"], true, () => { player.hp = 100; }, ()=>{}, 5000, 0, 1),
     "coin": new Item("Coin", textures["coin"], true, () => {}, ()=>{ player.coins++; }, 0, 0, 0),
     "brick": new Item("Brick", textures["brick"], true, () => { player.canEat = false; }, ()=>{ player.canEat = true; }, 5000, 0, 0),
     "shoe": new Item("Shoe", textures["shoe"], true, () => { player.canRun = false; }, ()=>{ player.canRun = true; }, 5000, 0, 0),
-    "pear": new Item("Pear", textures["pear"], true, () => { player.healthDecreaseRate = -0.1; }, ()=>{}, 5000, 1000, 1),
+    "pear": new Item("Pear", textures["pear"], true, () => { player.healthDecreaseRate = -0.05; }, ()=>{}, 3000, 1000, 1),
     "backpack": new Item("Backpack", textures["backpack"], true, () => {}, ()=>{ player.hasBackpack = true; }, 0, 0, 0),
     "sign": new Item("Sign", textures["sign"], true, () => { player.isBlurred = true; }, ()=>{ player.isBlurred = false; }, 3000, 0, 0),
     "drug": new Item("Drug", textures["drug"], true, () => { player.canWalkDiagonally = true; }, ()=>{ player.canWalkDiagonally = false; }, 30000, 5000, 0),
