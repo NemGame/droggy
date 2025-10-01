@@ -26,7 +26,7 @@ class Player {
         this.coins = 0;
         this.eaten = new Set();
         this.totalStuffEaten = 0;
-        this.hasBackpack = true;
+        this.hasBackpack = false;
         this.slots = 9;
         this.slotSelected = 0;
         this.inventory = Array.from({ length: this.slots }).fill(null);

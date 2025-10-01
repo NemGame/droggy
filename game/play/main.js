@@ -272,25 +272,12 @@ keys.bindkey("Escape", EscapeFunction, "press");
 
 function LateLoad() {
     ToggleScreenshot();
-    Death();
     keys.lockAllKeys();
     LoadCanvas();
 
     SpawnItemAt(Vector.null, items["brokkoli"])
 
     Update();
-
-    items["fuck"].eat(false, false);
-    player.addToInventory(items["fuck"])
-    player.addToInventory(items["fuck"])
-    player.addToInventory(items["fuck"])
-    player.addToInventory(items["fuck"])
-    player.addToInventory(items["fuck"])
-    player.addToInventory(items["fuck"])
-    player.addToInventory(items["fuck"])
-    player.addToInventory(items["fuck"])
-    player.addToInventory(items["fuck"])
-    player.addToInventory(items["fuck"])
 }
 
 let f11for = 0;
@@ -386,8 +373,9 @@ function ToggleFullscreen(bool=69) {
 }
 
 let screenshot = "";
-
-function ToggleScreenshot() {
+let screenshotFrom = null;
+function ToggleScreenshot(scf=null) {
+    if (scf != null) screenshotFrom = scf;
     const s = document.querySelector(".screenshotholder");
     const img = document.getElementById("screenshotImage");
     if (s.style.visibility == "hidden") {
@@ -399,6 +387,10 @@ function ToggleScreenshot() {
     else {
         s.style.visibility = "hidden"
         isStopped = false;
+        if (screenshotFrom != null) {
+            screenshotFrom.style.visibility = "visible";
+            screenshotFrom = null;
+        }
     }
 }
 
@@ -451,7 +443,7 @@ function Zoom(n=1) {
 
 const dholder = document.querySelector(".deathHolder");
 function Death() {
-    if (dholder.style.visibility == "hidden") {
+    if (getComputedStyle(dholder).visibility == "hidden") {
         document.getElementById("deathCount").textContent = player.totalStuffEaten;
         dholder.style.visibility = "visible";
     } else {

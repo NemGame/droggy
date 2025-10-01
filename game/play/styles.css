@@ -56,10 +56,6 @@ canvas:not(#main) {
     background-color: rgba(0, 0, 0, 0.5);
 }
 
-.deathHolder {
-    z-index: -1;
-}
-
 .screenshot {
     margin: auto;
     width: 30%;
