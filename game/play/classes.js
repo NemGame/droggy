@@ -79,6 +79,10 @@ class Player {
             this.isalive = false;
         }
     }
+    kill() {
+        Death();
+        this.isalive = false;
+    }
     autoHealthDecrease() {
         if (!isStopped) {
             this.hp -= this.healthDecreaseRate * deltaTime;
@@ -177,8 +181,13 @@ class Player {
         vals.forEach((x, i) => {
             let textureName = i == vals.length - 1 ? "effectbglast" : "effectbg";
             let ipos = pos.subbed(Vector.x(i * 16)).int;
+            let progress = 1 - (x.timeleft / x.miliseconds);
+            progress = Math.max(0, Math.min(1, progress));  // clamp 0-1
+            let yOffset = progress * 16;
+            let overlay = new Tile(ipos.subbed(Vector.y(yOffset)), textures["overlay"]);
             let effectTile = new Tile(ipos, textures[textureName], x.parent);
             effectTile.draw(true);
+            overlay.draw(true);
         })
     }
     drawHP(smoothen=false) {
@@ -538,6 +547,9 @@ class Effect {
         console.log(`Effect: ${name} added with duration: ${miliseconds} with delay: ${delay}`);
         this.callUpdate();
     }
+    get timeleft() {
+        return (Date.now() - this.startTime - this.delay - this.stoppedFor - this.miliseconds) * -1;
+    }
     setParent(x=Item.null) {
         this.parent = x;
         return this;
@@ -547,7 +559,7 @@ class Effect {
         return this;
     }
     update() {
-        if (!player.isalive) return;
+        if (!player.isalive) return this.aftereffect();
         if (isStopped) {
             this.stoppedFor += deltaTime;
             return this.callUpdate();

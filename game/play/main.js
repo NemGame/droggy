@@ -53,7 +53,8 @@ const textures = {
     "grass": new Texture("weath.png"),
     "fuck": new Texture("iforgor_name_but_god_item.png"),
     "effectbg": new Texture("x.png"),
-    "effectbglast": new Texture("x2.png")
+    "effectbglast": new Texture("x2.png"),
+    "overlay": new Texture("overlay.png")
 };
 Object.values(textures).forEach(x => x.init());
 const player = new Player(canvasSize.deved(2).floor.mult(16), 16, 1, textures["fella_animation_test.png"]);
@@ -68,8 +69,8 @@ const items = {
     "backpack": new Item("Backpack", textures["backpack"], true, () => {}, ()=>{ player.hasBackpack = true; }, 0, 0, 0),
     "sign": new Item("Sign", textures["sign"], true, () => { player.isBlurred = true; }, ()=>{ player.isBlurred = false; }, 3000, 0, 0),
     "drug": new Item("Drug", textures["drug"], true, () => { player.canWalkDiagonally = true; }, ()=>{ player.canWalkDiagonally = false; }, 30000, 5000, 0),
-    "grass": new Item("Grass", textures["grass"], true, () => { player.runningMult = 3; player.speed = 3; }, ()=>{ player.hp = 0; }, 10000, 10000, 0, false),
-    "fuck": new Item("Fuck", textures["fuck"], true, () => { player.hp = 100; player.canEat = true; player.isBlurred = false; }, ()=>{}, Infinity, 0, 2, false),
+    "grass": new Item("Grass", textures["grass"], true, () => { player.runningMult = 3; player.speed = 3; }, ()=>{ player.hp = 0; console.log("Killed the fella")}, 10000, 10000, 1),
+    "fuck": new Item("Fuck", textures["fuck"], true, () => { player.hp = 100; player.canEat = true; player.isBlurred = false; }, ()=>{}, Infinity, 0, 2),
 };
 const rareTiles = {
     "undefined": Structure.null,
