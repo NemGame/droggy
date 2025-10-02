@@ -51,7 +51,9 @@ const textures = {
     "sign": new Texture("npc_ig.png"),
     "drug": new Texture("coc.png"),
     "grass": new Texture("weath.png"),
-    "fuck": new Texture("iforgor_name_but_god_item.png")
+    "fuck": new Texture("iforgor_name_but_god_item.png"),
+    "effectbg": new Texture("x.png"),
+    "effectbglast": new Texture("x2.png")
 };
 Object.values(textures).forEach(x => x.init());
 const player = new Player(canvasSize.deved(2).floor.mult(16), 16, 1, textures["fella_animation_test.png"]);
@@ -255,6 +257,10 @@ keys.bindkey("ShitRight", () => {
 //#region Game mechanincs
 keys.bindkey("Space", SpaceFunction);
 keys.bindkey("Space", SpaceOtherFunction, "press");
+keys.bindkey("KeyE", SpaceFunction);
+keys.bindkey("KeyE", SpaceOtherFunction, "press");
+keys.bindkey("KeyF", SpaceFunction);
+keys.bindkey("KeyF", SpaceOtherFunction, "press");
 keys.bindkey("KeyQ", () => { player.dropInSlot(); });
 keys.bindkey("Digit1", () => { player.scrollTo(0); }, "press");
 keys.bindkey("Digit2", () => { player.scrollTo(1); }, "press");

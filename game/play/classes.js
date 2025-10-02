@@ -171,6 +171,16 @@ class Player {
         ctx.fillRect(pos.x + 16 - lW, pos.y, lineWidth, 16); // right
         ctx.strokeStyle = "white";
     }
+    drawEffects() {
+        let pos = Vector.as(c.width - 16, 0);
+        let vals = Object.values(this.effects);
+        vals.forEach((x, i) => {
+            let textureName = i == vals.length - 1 ? "effectbglast" : "effectbg";
+            let ipos = pos.subbed(Vector.x(i * 16)).int;
+            let effectTile = new Tile(ipos, textures[textureName], x.parent);
+            effectTile.draw(true);
+        })
+    }
     drawHP(smoothen=false) {
         ctx.fillStyle = "#6c0000";
         let height = 10, width = 100;
@@ -193,6 +203,7 @@ class Player {
         this.texture.drawCurrentAt(p.subbed(cameraPos).add(cameraOffset).rounded, true);
         ctx.stroke();
         this.drawHP(!this.isBlurred);
+        this.drawEffects();
         this.drawHotbar();
     }
     jumpToTile(tile=Vector.null) {
@@ -471,7 +482,7 @@ class Item {
     }
     startEffect() {
         if (this.name in player.effects) player.effects[this.name].extendEffect(this.effectDuratation);
-        else player.effects[this.name] = new Effect(this.name, this.effectDuratation, this.effectPriority, this.effect, this.aftereffect, this.effectDelay);
+        else player.effects[this.name] = new Effect(this.name, this.effectDuratation, this.effectPriority, this.effect, this.aftereffect, this.effectDelay).setParent(this);
     }
     draw(pos=Vector.null, isPlayer=false) {
         this.texture.drawAt(pos, undefined, undefined, isPlayer);
@@ -479,23 +490,10 @@ class Item {
     }
 }
 
-class TilePos {
-    constructor(tile=Tile.null, pos=Vector.null) {
-        this.tile = tile;
-        this.pos = pos;
-    }
-    static get null() {
-        return new TilePos();
-    }
-    get self() {
-        return new TilePos(this.tile.self, this.pos.self);
-    }
-}
-
 class Structure {
     /**
      * @param {String} name name
-     * @param {TilePos[]} tiles tiles
+     * @param {Tile[]} tiles tiles
      * @param {Boolean} afterGeneration if it has structures
      */
     constructor(name="Structure", tiles=[], rarity=0.05, afterGeneration=false, canSpawn=()=>{ return true; }) {
@@ -535,8 +533,14 @@ class Effect {
         this.startTime = Date.now();
         this.effectReference = player.effects;
         this.effectCallReference = player.effectsToCall;
+        this.parent = null;
+        this.stoppedFor = 0;
         console.log(`Effect: ${name} added with duration: ${miliseconds} with delay: ${delay}`);
         this.callUpdate();
+    }
+    setParent(x=Item.null) {
+        this.parent = x;
+        return this;
     }
     callUpdate() {
         requestAnimationFrame(this.update.bind(this));
@@ -544,7 +548,11 @@ class Effect {
     }
     update() {
         if (!player.isalive) return;
-        let timePassed = Date.now() - this.startTime - this.delay;
+        if (isStopped) {
+            this.stoppedFor += deltaTime;
+            return this.callUpdate();
+        }
+        let timePassed = Date.now() - this.startTime - this.delay - this.stoppedFor;
         if (timePassed < 0) {
             console.log("waitin'");
             return this.callUpdate();
@@ -554,7 +562,7 @@ class Effect {
             if (!(this.name in this.effectReference)) console.warn("Tried removing effect that was not there: " + this.name + " ; keys are: " + Object.keys(this.effectReference));
             else {
                 this.aftereffect();
-                console.log(`Effect: '${this.name}' removed, it was active for ${timePassed}ms ; target was: ${this.miliseconds}`)
+                console.log(`Effect: '${this.name}' removed, it was active for ${timePassed}ms ; target was: ${this.miliseconds} ; it was stopped for ${this.stoppedFor}ms`)
                 delete this.effectReference[this.name];
             }
             return;
